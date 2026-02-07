@@ -61,16 +61,16 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-            - name: Cache Maven packages
-              uses: actions/cache@v4
-              with:
-                path: ~/.m2
-                key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-                restore-keys: ${{ runner.os }}-m2
-            - name: Build and analyze
-              env:
-                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-                DB_URL: ${{ secrets.DB_URL }}
-                DB_USERNAME: ${{ secrets.DB_USERNAME }}
-                DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-              run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Sl4sh3r51_present-manager
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Sl4sh3r51_present-manager
