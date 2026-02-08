@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: develop
     permissions:
-      contents: read
+      contents: write
       actions: read
       security-events: write
+      pages: write
 
     name: Build and Analysis (develop)
     steps:
@@ -97,9 +98,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: main
     permissions:
-      contents: read
+      contents: write
       actions: read
       security-events: write
+      pages: write
 
     name: Build and Analysis (main)
     steps:
