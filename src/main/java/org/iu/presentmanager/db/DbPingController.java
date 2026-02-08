@@ -2,6 +2,8 @@ package org.iu.presentmanager.db;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +18,9 @@ public class DbPingController {
   private final JdbcTemplate jdbc;
   private final Environment env;
 
+  @SuppressFBWarnings(
+          value = "EI_EXPOSE_REP2",
+          justification = "JdbcTemplate and Environment are Spring-managed beans")
   public DbPingController(JdbcTemplate jdbc, Environment env) {
     this.jdbc = jdbc;
     this.env = env;
