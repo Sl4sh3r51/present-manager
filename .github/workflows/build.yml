@@ -45,31 +45,22 @@ jobs:
           SPRING_DATASOURCE_URL: ${{ secrets.DB_URL }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: mvn -B clean verify spotbugs:check pmd:check checkstyle:check
+        run: mvn -B clean verify spotbugs:spotbugs pmd:pmd checkstyle:checkstyle site
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
-      - name: Upload SpotBugs Report
+      - name: Upload HTML Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: spotbugs-report
-          path: target/spotbugsXml.xml
-
-      - name: Upload PMD Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pmd-report
-          path: target/pmd.xml
-
-      - name: Upload Checkstyle Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkstyle-report
-          path: target/checkstyle-result.xml
+          name: code-analysis-reports-develop
+          path: |
+            target/site/spotbugs.html
+            target/site/pmd.html
+            target/site/checkstyle.html
+            target/site/css/
+            target/site/images/
 
   build-main:
     if: github.ref == 'refs/heads/main'
@@ -108,28 +99,19 @@ jobs:
           SPRING_DATASOURCE_URL: ${{ secrets.DB_URL }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: mvn -B clean verify spotbugs:check pmd:check checkstyle:check
+        run: mvn -B clean verify spotbugs:spotbugs pmd:pmd checkstyle:checkstyle site
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
-      - name: Upload SpotBugs Report
+      - name: Upload HTML Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: spotbugs-report
-          path: target/spotbugsXml.xml
-
-      - name: Upload PMD Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pmd-report
-          path: target/pmd.xml
-
-      - name: Upload Checkstyle Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkstyle-report
-          path: target/checkstyle-result.xml
+          name: code-analysis-reports-develop
+          path: |
+            target/site/spotbugs.html
+            target/site/pmd.html
+            target/site/checkstyle.html
+            target/site/css/
+            target/site/images/
