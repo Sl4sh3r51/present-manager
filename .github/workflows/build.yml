@@ -1,4 +1,4 @@
-name: Build and SonarQube Analysis
+name: Build and Analysis
 on:
   push:
     branches:
@@ -11,6 +11,11 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     environment: develop
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
     name: Build and Analysis (develop)
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +29,7 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available.
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java
 
@@ -43,7 +48,7 @@ jobs:
         run: mvn -B clean verify spotbugs:check pmd:check checkstyle:check
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
       - name: Upload SpotBugs Report
         if: always()
@@ -70,6 +75,11 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: main
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
     name: Build and Analysis (main)
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +93,7 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available.
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java
 
@@ -101,7 +111,7 @@ jobs:
         run: mvn -B clean verify spotbugs:check pmd:check checkstyle:check
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
       - name: Upload SpotBugs Report
         if: always()
