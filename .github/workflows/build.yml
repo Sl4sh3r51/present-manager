@@ -5,7 +5,7 @@ on:
       - main
       - develop
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 jobs:
   build-develop:
     if: github.ref == 'refs/heads/develop'
@@ -59,7 +59,7 @@ jobs:
           <!DOCTYPE html>
           <html>
           <head>
-              <title>Code Analysis Reports - Develop</title>
+              <title>Code Analysis Reports - ${{ matrix.environment }}</title>
               <style>
                   body { font-family: Arial, sans-serif; margin: 40px; }
                   h1 { color: #333; }
@@ -76,22 +76,52 @@ jobs:
               </style>
           </head>
           <body>
-              <h1>Code Analysis Reports - Develop Branch</h1>
-              <a class="report-link" href="../spotbugs.html">📊 SpotBugs Report</a>
-              <a class="report-link" href="../pmd.html">📋 PMD Report</a>
-              <a class="report-link" href="../checkstyle.html">✅ Checkstyle Report</a>
+              <h1>Code Analysis Reports - ${{ matrix.environment }} Branch</h1>
+              <a class="report-link" href="../spotbugs.html">SpotBugs Report</a>
+              <a class="report-link" href="../pmd.html">PMD Report</a>
+              <a class="report-link" href="../checkstyle.html">Checkstyle Report</a>
           </body>
           </html>
           EOF
-          
+
       - name: Deploy to GitHub Pages (Develop)
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site
-          destination_dir: develop
+          destination_dir: ${{ matrix.environment }}
           keep_files: false
+          commit_message: "Deploy reports for ${{ matrix.environment }} - Run #${{ github.run_number }}"
+
+      - name: Display Report URLs
+        if: always()
+        env:
+          Branch: ${{ matrix.environment }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
+          run: |
+            echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
+          
+            cat << 'EOF'
+          
+            ╔══════════════════════════════════════════════════════════════════╗
+            ║                     DEPLOYMENT SUCCESSFUL                        ║
+            ╚══════════════════════════════════════════════════════════════════╝
+            EOF
+          
+            echo ""
+            echo "Code Analysis Dashboard:"
+            echo "   → $PAGES_URL/index.html"
+            echo ""
+            echo " Individual Reports:"
+            echo "   SpotBugs    → $PAGES_URL/spotbugs.html"
+            echo "   PMD         → $PAGES_URL/pmd.html"
+            echo "   Checkstyle  → $PAGES_URL/checkstyle.html"
+            echo ""
+            echo "Security Analysis:"
+            echo "   CodeQL      → https://github.com/$REPO/security/code-scanning"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
   build-main:
     if: github.ref == 'refs/heads/main'
@@ -144,7 +174,7 @@ jobs:
           <!DOCTYPE html>
           <html>
           <head>
-              <title>Code Analysis Reports - Develop</title>
+              <title>Code Analysis Reports - ${{ matrix.environment }}</title>
               <style>
                   body { font-family: Arial, sans-serif; margin: 40px; }
                   h1 { color: #333; }
@@ -161,19 +191,49 @@ jobs:
               </style>
           </head>
           <body>
-              <h1>Code Analysis Reports - Main Branch</h1>
-              <a class="report-link" href="../spotbugs.html">📊 SpotBugs Report</a>
-              <a class="report-link" href="../pmd.html">📋 PMD Report</a>
-              <a class="report-link" href="../checkstyle.html">✅ Checkstyle Report</a>
+              <h1>Code Analysis Reports - ${{ matrix.environment }} Branch</h1>
+              <a class="report-link" href="../spotbugs.html">SpotBugs Report</a>
+              <a class="report-link" href="../pmd.html">PMD Report</a>
+              <a class="report-link" href="../checkstyle.html">Checkstyle Report</a>
           </body>
           </html>
           EOF
 
-      - name: Deploy to GitHub Pages (main)
+      - name: Deploy to GitHub Pages (Develop)
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site
-          destination_dir: main
+          destination_dir: ${{ matrix.environment }}
           keep_files: false
+          commit_message: "Deploy reports for ${{ matrix.environment }} - Run #${{ github.run_number }}"
+
+      - name: Display Report URLs
+        if: always()
+        env:
+          Branch: ${{ matrix.environment }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
+          run: |
+            echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
+
+            cat << 'EOF'
+
+            ╔══════════════════════════════════════════════════════════════════╗
+            ║                     DEPLOYMENT SUCCESSFUL                        ║
+            ╚══════════════════════════════════════════════════════════════════╝
+            EOF
+
+            echo ""
+            echo "Code Analysis Dashboard:"
+            echo "   → $PAGES_URL/index.html"
+            echo ""
+            echo " Individual Reports:"
+            echo "   SpotBugs    → $PAGES_URL/spotbugs.html"
+            echo "   PMD         → $PAGES_URL/pmd.html"
+            echo "   Checkstyle  → $PAGES_URL/checkstyle.html"
+            echo ""
+            echo "Security Analysis:"
+            echo "   CodeQL      → https://github.com/$REPO/security/code-scanning"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
