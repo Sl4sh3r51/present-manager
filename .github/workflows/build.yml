@@ -99,7 +99,7 @@ jobs:
         env:
           Branch: ${{ matrix.environment }}
           PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
-          run: |
+        run: |
             echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
           
             cat << 'EOF'
@@ -214,7 +214,7 @@ jobs:
         env:
           Branch: ${{ matrix.environment }}
           PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
-          run: |
+        run: |
             echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
 
             cat << 'EOF'
