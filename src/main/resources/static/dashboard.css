@@ -1,0 +1,68 @@
+.cards {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.metric-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.metric-icon.blue {
+  background: #eff6ff;
+}
+
+.metric-icon.green {
+  background: #f0fdf4;
+}
+
+.metric-icon.orange {
+  background: #fff7ed;
+}
+
+.count {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 10px 0 14px;
+  line-height: 1;
+}
+
+.todo-list {
+  list-style: none;
+  margin: 10px 0 0;
+}
+
+.todo-list li {
+  position: relative;
+  padding-left: 14px;
+  margin: 6px 0;
+  font-size: 13px;
+  color: #334155;
+}
+
+.todo-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #f97316;
+}
+
+@media (max-width: 900px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

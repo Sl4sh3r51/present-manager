@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geschenke-Manager - Dashboard</title>
+    <link rel="stylesheet" href="/shared.css" />
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-icon"></div>
+          <span>Geschenke-Manager</span>
+        </div>
+        <nav class="tabs">
+          <a class="tab active" href="/dashboard.html">Dashboard</a>
+          <a class="tab" href="/persons.html">Personen</a>
+          <a class="tab" href="/occasions.html">Anlässe</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="hero">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Willkommen zurück! Hier ist dein Überblick.</p>
+        </div>
+        <a class="generate-btn" href="/occasions.html">Ideen generieren</a>
+      </section>
+
+      <section class="cards">
+        <article class="card">
+          <div class="metric-head">
+            <span class="metric-icon blue"></span>
+            <div>
+              <h3>Personen</h3>
+              <p class="muted">Verwaltete Personen</p>
+            </div>
+          </div>
+          <p class="count" id="person-count">0</p>
+          <a class="btn soft" href="/persons.html">Zur Personenverwaltung</a>
+        </article>
+
+        <article class="card">
+          <div class="metric-head">
+            <span class="metric-icon green"></span>
+            <div>
+              <h3>Anlässe</h3>
+              <p class="muted">Verwaltete Anlässe</p>
+            </div>
+          </div>
+          <p class="count" id="occasion-count">0</p>
+          <a class="btn soft" href="/occasions.html">Zur Anlässe-Verwaltung</a>
+        </article>
+
+        <article class="card">
+          <div class="metric-head">
+            <span class="metric-icon orange"></span>
+            <div>
+              <h3>Offene Aufgaben</h3>
+              <p class="muted">Sprintziel-Tasks</p>
+            </div>
+          </div>
+          <ul class="todo-list">
+            <li>Personenmaske prüfen</li>
+            <li>Anlassmaske prüfen</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="quick">
+        <h3>Schnellaktionen</h3>
+        <p>Füge neue Personen oder Anlässe hinzu.</p>
+        <div class="quick-actions">
+          <a class="btn white" href="/persons.html">Person hinzufügen</a>
+          <a class="btn glass" href="/occasions.html">Anlass hinzufügen</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/storage.js"></script>
+    <script src="/dashboard.js" defer></script>
+  </body>
+</html>

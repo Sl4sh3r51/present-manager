@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personenverwaltung</title>
+    <link rel="stylesheet" href="/shared.css" />
+    <link rel="stylesheet" href="/persons.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-icon"></div>
+          <span>Geschenke-Manager</span>
+        </div>
+        <nav class="tabs">
+          <a class="tab" href="/dashboard.html">Dashboard</a>
+          <a class="tab active" href="/persons.html">Personen</a>
+          <a class="tab" href="/occasions.html">Anlässe</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="layout">
+      <header class="hero">
+        <div>
+          <h1>Personenverwaltung</h1>
+          <p>Personen anlegen, bearbeiten und löschen.</p>
+        </div>
+        <button class="hero-btn" type="button" onclick="document.getElementById('firstName').focus()">
+          Person anlegen
+        </button>
+      </header>
+
+      <section class="page-grid">
+        <article class="card">
+          <div class="card-head">
+            <h2 id="form-title">Neue Person</h2>
+            <span class="badge">GM22</span>
+          </div>
+          <form id="person-form">
+            <div class="form-grid">
+              <label>Vorname <input id="firstName" name="firstName" type="text" required /></label>
+              <label>Nachname <input id="lastName" name="lastName" type="text" required /></label>
+              <label>E-Mail <input id="email" name="email" type="email" /></label>
+              <label>Telefon <input id="phone" name="phone" type="text" /></label>
+            </div>
+            <label>Notizen <textarea id="notes" name="notes" rows="3"></textarea></label>
+            <div class="actions">
+              <button id="save-btn" type="submit">Person speichern</button>
+              <button id="cancel-btn" type="button" class="secondary hidden">Abbrechen</button>
+            </div>
+          </form>
+          <p id="form-message" class="message" role="status" aria-live="polite"></p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h2>Alle Personen</h2>
+            <span class="pill">Live</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>E-Mail</th>
+                  <th>Telefon</th>
+                  <th>Notiz</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody id="persons-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="quick">
+        <h3>Schnellaktionen</h3>
+        <p>Person hinzufügen oder zur Anlassverwaltung wechseln.</p>
+        <div class="quick-actions">
+          <button class="btn-white" type="button" onclick="document.getElementById('firstName').focus()">
+            Person hinzufügen
+          </button>
+          <a class="btn-glass" href="/occasions.html">Zu Anlässen</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/storage.js"></script>
+    <script src="/persons.js" defer></script>
+  </body>
+</html>

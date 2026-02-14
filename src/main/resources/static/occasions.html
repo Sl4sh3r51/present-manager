@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anlassverwaltung</title>
+    <link rel="stylesheet" href="/shared.css" />
+    <link rel="stylesheet" href="/occasions.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-icon"></div>
+          <span>Geschenke-Manager</span>
+        </div>
+        <nav class="tabs">
+          <a class="tab" href="/dashboard.html">Dashboard</a>
+          <a class="tab" href="/persons.html">Personen</a>
+          <a class="tab active" href="/occasions.html">Anlässe</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="layout">
+      <header class="hero">
+        <div>
+          <h1>Anlassverwaltung</h1>
+          <p>Anlässe anlegen, bearbeiten und löschen.</p>
+        </div>
+      </header>
+
+      <section class="page-grid">
+        <article class="card">
+          <div class="card-head">
+            <h2 id="form-title">Neuer Anlass</h2>
+            <span class="badge">GM23</span>
+          </div>
+          <form id="occasion-form">
+            <div class="form-grid">
+              <label>Titel <input id="title" name="title" type="text" required /></label>
+              <label>
+                Typ
+                <select id="occasionType" name="occasionType">
+                  <option value="">Bitte wählen</option>
+                  <option value="Geburtstag">Geburtstag</option>
+                  <option value="Hochzeit">Hochzeit</option>
+                  <option value="Jubiläum">Jubiläum</option>
+                  <option value="Weihnachten">Weihnachten</option>
+                  <option value="Sonstiges">Sonstiges</option>
+                </select>
+              </label>
+              <label>Datum <input id="occasionDate" name="occasionDate" type="date" /></label>
+              <label>Person <input id="personName" name="personName" type="text" /></label>
+            </div>
+            <label>Notizen <textarea id="notes" name="notes" rows="3"></textarea></label>
+            <div class="actions">
+              <button id="save-btn" type="submit">Anlass speichern</button>
+              <button id="cancel-btn" type="button" class="secondary hidden">Abbrechen</button>
+            </div>
+          </form>
+          <p id="form-message" class="message" role="status" aria-live="polite"></p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h2>Alle Anlässe</h2>
+            <span class="pill">Live</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Titel</th>
+                  <th>Typ</th>
+                  <th>Datum</th>
+                  <th>Person</th>
+                  <th>Notiz</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody id="occasions-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="quick">
+        <h3>Schnellaktionen</h3>
+        <p>Anlass erstellen oder zur Personenverwaltung wechseln.</p>
+        <div class="quick-actions">
+          <button class="btn-white" type="button" onclick="document.getElementById('title').focus()">
+            Anlass hinzufügen
+          </button>
+          <a class="btn-glass" href="/persons.html">Zu Personen</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/storage.js"></script>
+    <script src="/occasions.js" defer></script>
+  </body>
+</html>
