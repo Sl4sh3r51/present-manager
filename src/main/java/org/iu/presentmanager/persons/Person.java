@@ -7,8 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iu.presentmanager.person_interests.Person_Interests;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -48,4 +51,9 @@ public class Person {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Person_Interests> personInterests = new HashSet<>();
+
 }

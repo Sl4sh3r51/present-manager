@@ -1,5 +1,8 @@
 package org.iu.presentmanager.persons;
 
+import lombok.Getter;
+
+@Getter
 public enum PersonStatus {
 
     NONE("none"),
@@ -13,7 +16,4 @@ public enum PersonStatus {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
 }
