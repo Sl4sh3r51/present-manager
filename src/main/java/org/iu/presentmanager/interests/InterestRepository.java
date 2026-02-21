@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ResponseBody
-public interface InterestsRepository extends JpaRepository<Interests, UUID> {
+public interface InterestRepository extends JpaRepository<Interest, UUID> {
 
-    Optional<Interests> findByNameIgnoreCase(String name);
+    Optional<Interest> findByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCase(String name);
 }

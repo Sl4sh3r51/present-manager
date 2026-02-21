@@ -2,7 +2,7 @@ package org.iu.presentmanager.person_interests;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.iu.presentmanager.interests.Interests;
+import org.iu.presentmanager.interests.Interest;
 import org.iu.presentmanager.persons.Person;
 
 @Entity
@@ -11,10 +11,10 @@ import org.iu.presentmanager.persons.Person;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class Person_Interests {
+public class PersonInterest {
 
     @EmbeddedId
-    private PersonInterestsId id;
+    private PersonInterestId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("personId")
@@ -24,5 +24,5 @@ public class Person_Interests {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("interestId")
     @JoinColumn(name = "interest_id")
-    private Interests interests;
+    private Interest interest;
 }

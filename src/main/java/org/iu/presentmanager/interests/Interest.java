@@ -3,7 +3,7 @@ package org.iu.presentmanager.interests;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.iu.presentmanager.person_interests.Person_Interests;
+import org.iu.presentmanager.person_interests.PersonInterest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,10 +16,10 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Interests {
+public class Interest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
@@ -28,5 +28,5 @@ public class Interests {
 
     @OneToMany(mappedBy = "interest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Person_Interests> personInterests = new HashSet<>();
+    private Set<PersonInterest> personInterests = new HashSet<>();
 }

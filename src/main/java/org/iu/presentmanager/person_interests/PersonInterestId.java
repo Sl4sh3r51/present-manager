@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonInterestsId implements Serializable {
+public class PersonInterestId implements Serializable {
 
     @Column(name = "person_id")
     private UUID personId;
@@ -25,7 +25,7 @@ public class PersonInterestsId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PersonInterestsId that)) return false;
+        if (!(o instanceof PersonInterestId that)) return false;
         return Objects.equals(personId, that.personId) && Objects.equals(interestId, that.interestId);
     }
 

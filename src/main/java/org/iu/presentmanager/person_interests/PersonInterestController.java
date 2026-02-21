@@ -1,7 +1,7 @@
 package org.iu.presentmanager.person_interests;
 
 import lombok.RequiredArgsConstructor;
-import org.iu.presentmanager.interests.Interests;
+import org.iu.presentmanager.interests.Interest;
 import org.iu.presentmanager.persons.Person;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,45 +15,45 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/person-interests")
 @RequiredArgsConstructor
-public class Person_InterestsController {
+public class PersonInterestController {
 
-    private final Person_InterestsService personInterestsService;
+    private final PersonInterestService personInterestService;
 
     @PostMapping
-    public ResponseEntity<Person_Interests> addInterest(
+    public ResponseEntity<PersonInterest> addInterest(
             @RequestParam UUID personId,
             @RequestParam UUID interestId,
             @AuthenticationPrincipal UUID userId
     ) {
-        Person_Interests created = personInterestsService.addInterest(personId, userId, interestId);
+        PersonInterest created = personInterestService.addInterest(personId, userId, interestId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<List<Person_Interests>> addMultipleInterests(
+    public ResponseEntity<List<PersonInterest>> addMultipleInterests(
             @RequestParam UUID personId,
             @RequestBody Set<UUID> interestIds,
             @AuthenticationPrincipal UUID userId
     ) {
-        List<Person_Interests> created = personInterestsService.addMultipleInterests(personId, userId, interestIds);
+        List<PersonInterest> created = personInterestService.addMultipleInterests(personId, userId, interestIds);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public ResponseEntity<List<Person_Interests>> getPersonInterests(
+    public ResponseEntity<List<PersonInterest>> getPersonInterests(
             @RequestParam UUID personId,
             @AuthenticationPrincipal UUID userId
     ) {
-        List<Person_Interests> personInterests = personInterestsService.getPersonInterests(personId, userId);
+        List<PersonInterest> personInterests = personInterestService.getPersonInterests(personId, userId);
         return ResponseEntity.ok(personInterests);
     }
 
     @GetMapping("/interests")
-    public ResponseEntity<List<Interests>> getInterestsForPerson(
+    public ResponseEntity<List<Interest>> getInterestsForPerson(
             @RequestParam UUID personId,
             @AuthenticationPrincipal UUID userId
     ) {
-        List<Interests> interests = personInterestsService.getInterestsForPerson(personId, userId);
+        List<Interest> interests = personInterestService.getInterestsForPerson(personId, userId);
         return ResponseEntity.ok(interests);
     }
 
@@ -62,15 +62,15 @@ public class Person_InterestsController {
             @RequestParam UUID interestId,
             @AuthenticationPrincipal UUID userId
     ) {
-        List<Person> persons = personInterestsService.getPersonsForInterest(interestId, userId);
+        List<Person> persons = personInterestService.getPersonsForInterest(interestId, userId);
         return ResponseEntity.ok(persons);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Person_Interests>> getAllByUser(
+    public ResponseEntity<List<PersonInterest>> getAllByUser(
             @AuthenticationPrincipal UUID userId
     ) {
-        List<Person_Interests> all = personInterestsService.getAllByUser(userId);
+        List<PersonInterest> all = personInterestService.getAllByUser(userId);
         return ResponseEntity.ok(all);
     }
 
@@ -80,7 +80,7 @@ public class Person_InterestsController {
             @RequestParam UUID interestId,
             @AuthenticationPrincipal UUID userId
     ) {
-        boolean has = personInterestsService.hasInterest(personId, userId, interestId);
+        boolean has = personInterestService.hasInterest(personId, userId, interestId);
         return ResponseEntity.ok(has);
     }
 
@@ -90,7 +90,7 @@ public class Person_InterestsController {
             @RequestBody Set<UUID> interestIds,
             @AuthenticationPrincipal UUID userId
     ) {
-        personInterestsService.replaceAllInterests(personId, userId, interestIds);
+        personInterestService.replaceAllInterests(personId, userId, interestIds);
         return ResponseEntity.ok().build();
     }
 
@@ -100,7 +100,7 @@ public class Person_InterestsController {
             @RequestParam UUID interestId,
             @AuthenticationPrincipal UUID userId
     ) {
-        personInterestsService.removeInterest(personId, userId, interestId);
+        personInterestService.removeInterest(personId, userId, interestId);
         return ResponseEntity.noContent().build();
     }
 
@@ -109,7 +109,7 @@ public class Person_InterestsController {
             @RequestParam UUID personId,
             @AuthenticationPrincipal UUID userId
     ) {
-        personInterestsService.removeAllInterests(personId, userId);
+        personInterestService.removeAllInterests(personId, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -118,7 +118,7 @@ public class Person_InterestsController {
             @RequestParam UUID personId,
             @AuthenticationPrincipal UUID userId
     ) {
-        long count = personInterestsService.countInterestsForPerson(personId, userId);
+        long count = personInterestService.countInterestsForPerson(personId, userId);
         return ResponseEntity.ok(count);
     }
 
@@ -127,7 +127,7 @@ public class Person_InterestsController {
             @RequestParam UUID interestId,
             @AuthenticationPrincipal UUID userId
     ) {
-        long count = personInterestsService.countPersonsWithInterest(interestId, userId);
+        long count = personInterestService.countPersonsWithInterest(interestId, userId);
         return ResponseEntity.ok(count);
     }
 }

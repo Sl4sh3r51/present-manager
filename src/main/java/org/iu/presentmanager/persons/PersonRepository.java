@@ -18,18 +18,14 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
 
     Optional<Person> findByIdAndUserId(UUID id, UUID userId);
 
-    @Query("SELECT p FROM Person p WHERE p.userId = :userId " +
-            "AND FUNCTION('EXTRACT', MONTH FROM p.birthday) = :month " +
-            "AND FUNCTION('EXTRACT', DAY FROM p.birthday) = :day")
+    @Query("SELECT p FROM Person p WHERE p.userId = :userId AND MONTH(p.birthday) = :month AND DAY(p.birthday) = :day")
     List<Person> findUpcomingBirthdays(
             @Param("userId") UUID userId,
             @Param("month") int month,
             @Param("day") int day
     );
 
-    @Query("SELECT p FROM Person p WHERE p.userId = :userId " +
-            "AND FUNCTION('EXTRACT', MONTH FROM p.birthday) = :month " +
-            "ORDER BY FUNCTION('EXTRACT', DAY FROM p.birthday)")
+    @Query("SELECT p FROM Person p WHERE p.userId = :userId AND MONTH(p.birthday) = :month ORDER BY DAY(p.birthday)")
     List<Person> findBirthdaysInMonth(
             @Param("userId") UUID userId,
             @Param("month") int month
@@ -39,9 +35,9 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
 
     void deleteByIdAndUserId(UUID id, UUID userId);
 
-    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND pi.interests.id = :interestId")
+    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND pi.interest.id = :interestId")
     List<Person> findByUserIdAndInterestId(@Param("userId") UUID userId, @Param("interestId") UUID interestId);
 
-    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND LOWER(pi.interests.name) = LOWER(:interestName)")
+    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND LOWER(pi.interest.name) = LOWER(:interestName)")
     List<Person> findByUserIdAndInterestName(@Param("userId") UUID userId, @Param("interestName") String interestName);
 }

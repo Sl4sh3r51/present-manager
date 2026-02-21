@@ -4,11 +4,12 @@ on:
     branches:
       - main
       - develop
+      - feature/**
   pull_request:
     types: [ opened, synchronize, reopened ]
 jobs:
   build-develop:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
     runs-on: ubuntu-latest
     environment: develop
     permissions:

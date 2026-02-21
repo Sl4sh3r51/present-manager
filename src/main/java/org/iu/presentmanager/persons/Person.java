@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.iu.presentmanager.person_interests.Person_Interests;
+import org.iu.presentmanager.person_interests.PersonInterest;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -54,6 +54,6 @@ public class Person {
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Person_Interests> personInterests = new HashSet<>();
+    private Set<PersonInterest> personInterests = new HashSet<>();
 
 }

@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.iu.presentmanager.exceptions.DuplicateResourceException;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
-import org.iu.presentmanager.interests.Interests;
-import org.iu.presentmanager.interests.InterestsRepository;
+import org.iu.presentmanager.interests.Interest;
+import org.iu.presentmanager.interests.InterestRepository;
 import org.iu.presentmanager.persons.Person;
 import org.iu.presentmanager.persons.PersonRepository;
 import org.springframework.stereotype.Service;
@@ -20,35 +20,35 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class Person_InterestsService {
+public class PersonInterestService {
 
-    private final Person_InterestsRepository personInterestsRepository;
-    private final InterestsRepository interestsRepository;
+    private final PersonInterestRepository personInterestRepository;
+    private final InterestRepository interestRepository;
     private final PersonRepository personRepository;
 
     @Transactional
-    public Person_Interests addInterest(UUID personId, UUID userId, UUID interestId) {
+    public PersonInterest addInterest(UUID personId, UUID userId, UUID interestId) {
 
         Person person = personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
 
-        Interests interest = interestsRepository.findById(interestId)
+        Interest interest = interestRepository.findById(interestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found with id: " + interestId));
 
 
-        if (personInterestsRepository.existsByPersonIdAndInterestsId(personId, interestId)) {
+        if (personInterestRepository.existsByPersonIdAndInterestId(personId, interestId)) {
             throw new DuplicateResourceException(
                     "Person " + personId + " already has interest " + interestId
             );
         }
 
-        Person_Interests personInterest = new Person_Interests();
-        personInterest.setId(new PersonInterestsId(personId, interestId));
+        PersonInterest personInterest = new PersonInterest();
+        personInterest.setId(new PersonInterestId(personId, interestId));
         personInterest.setPerson(person);
-        personInterest.setInterests(interest);
+        personInterest.setInterest(interest);
 
-        Person_Interests saved = personInterestsRepository.save(personInterest);
+        PersonInterest saved = personInterestRepository.save(personInterest);
         log.info("Added interest '{}' to person '{}' (user: {})",
                 interest.getName(), person.getName(), userId);
 
@@ -56,7 +56,7 @@ public class Person_InterestsService {
     }
 
     @Transactional
-    public List<Person_Interests> addMultipleInterests(UUID personId, UUID userId, Set<UUID> interestIds) {
+    public List<PersonInterest> addMultipleInterests(UUID personId, UUID userId, Set<UUID> interestIds) {
 
         Person person = personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
@@ -74,41 +74,41 @@ public class Person_InterestsService {
                 .collect(Collectors.toList());
     }
 
-    public List<Person_Interests> getPersonInterests(UUID personId, UUID userId) {
+    public List<PersonInterest> getPersonInterests(UUID personId, UUID userId) {
         // Validierung: Person gehört dem User
         personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
-        return personInterestsRepository.findByPersonId(personId);
+        return personInterestRepository.findByPersonId(personId);
     }
 
-    public List<Interests> getInterestsForPerson(UUID personId, UUID userId) {
-        List<Person_Interests> personInterests = getPersonInterests(personId, userId);
+    public List<Interest> getInterestsForPerson(UUID personId, UUID userId) {
+        List<PersonInterest> personInterests = getPersonInterests(personId, userId);
         return personInterests.stream()
-                .map(Person_Interests::getInterests)
+                .map(PersonInterest::getInterest)
                 .collect(Collectors.toList());
     }
 
-    public List<Person_Interests> getInterestPersons(UUID interestId) {
+    public List<PersonInterest> getInterestPersons(UUID interestId) {
         // Validierung: Interest existiert
-        interestsRepository.findById(interestId)
+        interestRepository.findById(interestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found with id: " + interestId));
 
-        return personInterestsRepository.findByInterestsId(interestId);
+        return personInterestRepository.findByInterestId(interestId);
     }
 
     public List<Person> getPersonsForInterest(UUID interestId, UUID userId) {
-        List<Person_Interests> personInterests = getInterestPersons(interestId);
+        List<PersonInterest> personInterests = getInterestPersons(interestId);
 
         // Nur Personen des Users zurückgeben
         return personInterests.stream()
-                .map(Person_Interests::getPerson)
+                .map(PersonInterest::getPerson)
                 .filter(person -> person.getUserId().equals(userId))
                 .collect(Collectors.toList());
     }
 
-    public List<Person_Interests> getAllByUser(UUID userId) {
-        return personInterestsRepository.findByUserIdAndPersonId(userId, null);
+    public List<PersonInterest> getAllByUser(UUID userId) {
+        return personInterestRepository.findByUserIdAndPersonId(userId, null);
     }
 
     public boolean hasInterest(UUID personId, UUID userId, UUID interestId) {
@@ -116,7 +116,7 @@ public class Person_InterestsService {
         personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
-        return personInterestsRepository.existsByPersonIdAndInterestsId(personId, interestId);
+        return personInterestRepository.existsByPersonIdAndInterestId(personId, interestId);
     }
 
     @Transactional
@@ -126,22 +126,22 @@ public class Person_InterestsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
         // Alle alten Beziehungen löschen
-        List<Person_Interests> existing = personInterestsRepository.findByPersonId(personId);
-        personInterestsRepository.deleteAll(existing);
+        List<PersonInterest> existing = personInterestRepository.findByPersonId(personId);
+        personInterestRepository.deleteAll(existing);
 
         log.info("Removed {} existing interests for person {}", existing.size(), personId);
 
         // Neue Beziehungen erstellen
         for (UUID interestId : interestIds) {
-            Interests interest = interestsRepository.findById(interestId)
+            Interest interest = interestRepository.findById(interestId)
                     .orElseThrow(() -> new ResourceNotFoundException("Interest not found with id: " + interestId));
 
-            Person_Interests personInterest = new Person_Interests();
-            personInterest.setId(new PersonInterestsId(personId, interestId));
+            PersonInterest personInterest = new PersonInterest();
+            personInterest.setId(new PersonInterestId(personId, interestId));
             personInterest.setPerson(person);
-            personInterest.setInterests(interest);
+            personInterest.setInterest(interest);
 
-            personInterestsRepository.save(personInterest);
+            personInterestRepository.save(personInterest);
         }
 
         log.info("Set {} new interests for person '{}' (user: {})",
@@ -155,13 +155,13 @@ public class Person_InterestsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
         // Prüfen ob Beziehung existiert
-        if (!personInterestsRepository.existsByPersonIdAndInterestsId(personId, interestId)) {
+        if (!personInterestRepository.existsByPersonIdAndInterestId(personId, interestId)) {
             throw new ResourceNotFoundException(
                     "Person " + personId + " does not have interest " + interestId
             );
         }
 
-        personInterestsRepository.deleteByPersonIdAndInterestsId(personId, interestId);
+        personInterestRepository.deleteByPersonIdAndInterestId(personId, interestId);
         log.info("Removed interest {} from person {} (user: {})", interestId, personId, userId);
     }
 
@@ -171,8 +171,8 @@ public class Person_InterestsService {
         personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
-        List<Person_Interests> existing = personInterestsRepository.findByPersonId(personId);
-        personInterestsRepository.deleteAll(existing);
+        List<PersonInterest> existing = personInterestRepository.findByPersonId(personId);
+        personInterestRepository.deleteAll(existing);
 
         log.info("Removed all {} interests from person {} (user: {})",
                 existing.size(), personId, userId);
@@ -182,7 +182,7 @@ public class Person_InterestsService {
         personRepository.findByIdAndUserId(personId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
-        return personInterestsRepository.findByPersonId(personId).size();
+        return personInterestRepository.findByPersonId(personId).size();
     }
 
     public long countPersonsWithInterest(UUID interestId, UUID userId) {
