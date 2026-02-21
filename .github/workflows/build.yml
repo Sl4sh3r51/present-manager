@@ -8,7 +8,6 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 permissions:
-    dependency-graph: write
     contents: write
     actions: read
     security-events: write
