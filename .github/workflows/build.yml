@@ -7,17 +7,17 @@ on:
       - feature/**
   pull_request:
     types: [ opened, synchronize, reopened ]
+permissions:
+    dependency-graph: write
+    contents: write
+    actions: read
+    security-events: write
+    pages: write
 jobs:
   build-develop:
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
     runs-on: ubuntu-latest
     environment: develop
-    permissions:
-      contents: write
-      actions: read
-      security-events: write
-      pages: write
-
     name: Build and Analysis (develop)
     steps:
       - uses: actions/checkout@v4
@@ -128,11 +128,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: main
-    permissions:
-      contents: write
-      actions: read
-      security-events: write
-      pages: write
 
     name: Build and Analysis (main)
     steps:
