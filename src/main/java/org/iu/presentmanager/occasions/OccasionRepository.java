@@ -28,15 +28,15 @@ public interface OccasionRepository extends JpaRepository<Occasion, UUID> {
 
     // Alle FIXED Occasions in einem bestimmten Monat
     @Query("SELECT o FROM Occasion o WHERE o.userId = :userId AND o.type = 'FIXED' AND o.fixedMonth = :month ORDER BY o.fixedDay")
-    List<Occasion> findFixedOccasionsByMonth(@Param("userId") UUID userId, @Param("month") int month);
+    List<Occasion> findFixedOccasionByMonth(@Param("userId") UUID userId, @Param("month") int month);
 
     // Alle FIXED Occasions an einem bestimmten Datum (Monat + Tag)
     @Query("SELECT o FROM Occasion o WHERE o.userId = :userId AND o.type = 'FIXED' AND o.fixedMonth = :month AND o.fixedDay = :day")
-    List<Occasion> findFixedOccasionsByDate(@Param("userId") UUID userId, @Param("month") int month, @Param("day") int day);
+    List<Occasion> findFixedOccasionByDate(@Param("userId") UUID userId, @Param("month") int month, @Param("day") int day);
 
     // Alle wiederkehrenden FIXED Occasions
     @Query("SELECT o FROM Occasion o WHERE o.userId = :userId AND o.type = 'FIXED' AND o.isRecurring = true ORDER BY o.fixedMonth, o.fixedDay")
-    List<Occasion> findRecurringFixedOccasions(@Param("userId") UUID userId);
+    List<Occasion> findRecurringFixedOccasion(@Param("userId") UUID userId);
 
     void deleteByIdAndUserId(UUID id, UUID userId);
 }

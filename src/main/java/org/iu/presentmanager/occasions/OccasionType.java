@@ -13,4 +13,5 @@ public enum OccasionType {
     OccasionType(String type) {
         this.type = type;
     }
+
 }

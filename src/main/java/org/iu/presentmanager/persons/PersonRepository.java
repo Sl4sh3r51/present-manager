@@ -34,10 +34,4 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
     long countByUserIdAndStatus(UUID userId, PersonStatus status);
 
     void deleteByIdAndUserId(UUID id, UUID userId);
-
-    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND pi.interest.id = :interestId")
-    List<Person> findByUserIdAndInterestId(@Param("userId") UUID userId, @Param("interestId") UUID interestId);
-
-    @Query("SELECT p FROM Person p JOIN p.personInterests pi WHERE p.userId = :userId AND LOWER(pi.interest.name) = LOWER(:interestName)")
-    List<Person> findByUserIdAndInterestName(@Param("userId") UUID userId, @Param("interestName") String interestName);
 }

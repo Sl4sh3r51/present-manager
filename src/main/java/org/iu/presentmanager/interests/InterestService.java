@@ -21,37 +21,42 @@ public class InterestService {
         return interestRepository.findAll();
     }
 
-    public Interest getInterestsById(UUID interestId) {
+    public Interest     getInterestById(UUID interestId) {
         return interestRepository.findById(interestId).filter(interests -> interests.getId().equals(interestId))
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found"));
     }
 
-    public Interest getInterestsByName(String name) {
+    public Interest getInterestByName(String name) {
         return interestRepository.findByNameIgnoreCase(name).filter(interests -> interests.getName().equals(name))
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found"));
     }
 
     @Transactional
-    public Interest createInterests(Interest interest) {
-        log.info("Creating interest: {}", interest.getName());
-
+    public Interest createInterest(Interest interest) {
         if (interestRepository.existsByNameIgnoreCase(interest.getName())) {
             throw new DuplicateResourceException("Interest already exists with name: " + interest.getName());
         }
+        if (interest.getName() == null || interest.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Interest name cannot be null or empty");
+        }
+        log.info("Creating interest: {}", interest.getName());
 
         return interestRepository.save(interest);
     }
 
     @Transactional
-    public void deleteInterests(UUID interestId) {
+    public void deleteInterest(UUID interestId) {
         if (!interestRepository.existsById(interestId)) {
             throw new ResourceNotFoundException("Interest not found with id: " + interestId);
         }
-
-        interestRepository.deleteById(interestId);
+        Interest interest = getInterestById(interestId);
+        interestRepository.delete(interest);
     }
 
     public boolean existsByName(String name) {
+        if(name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Interest name cannot be null or empty");
+        }
         return interestRepository.existsByNameIgnoreCase(name);
     }
 }

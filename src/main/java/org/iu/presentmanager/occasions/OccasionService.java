@@ -64,16 +64,16 @@ public class OccasionService {
         if (month < 1 || month > 12) {
             throw new IllegalArgumentException("Month must be between 1 and 12");
         }
-        return occasionRepository.findFixedOccasionsByMonth(userId, month);
+        return occasionRepository.findFixedOccasionByMonth(userId, month);
     }
 
     public List<Occasion> getTodayFixedOccasions(UUID userId) {
         LocalDate today = LocalDate.now();
-        return occasionRepository.findFixedOccasionsByDate(userId, today.getMonthValue(), today.getDayOfMonth());
+        return occasionRepository.findFixedOccasionByDate(userId, today.getMonthValue(), today.getDayOfMonth());
     }
 
     public List<Occasion> getRecurringFixedOccasions(UUID userId) {
-        return occasionRepository.findRecurringFixedOccasions(userId);
+        return occasionRepository.findRecurringFixedOccasion(userId);
     }
 
     @Transactional
@@ -84,13 +84,6 @@ public class OccasionService {
         if (!existing.getName().equals(updatedOccasion.getName()) &&
                 occasionRepository.existsByUserIdAndName(userId, updatedOccasion.getName())) {
             throw new DuplicateResourceException("Occasion already exists with name: " + updatedOccasion.getName());
-        }
-
-        // Validierung: FIXED muss fixedMonth und fixedDay haben
-        if (updatedOccasion.getType() == OccasionType.FIXED) {
-            if (updatedOccasion.getFixedMonth() == null || updatedOccasion.getFixedDay() == null) {
-                throw new IllegalArgumentException("Fixed occasions must have fixedMonth and fixedDay");
-            }
         }
 
         existing.setName(updatedOccasion.getName());

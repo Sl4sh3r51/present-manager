@@ -11,6 +11,7 @@ import org.iu.presentmanager.persons.Person;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
+@Getter
 public class PersonInterest {
 
     @EmbeddedId
