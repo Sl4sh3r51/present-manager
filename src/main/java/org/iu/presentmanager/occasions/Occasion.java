@@ -11,8 +11,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.iu.presentmanager.giftIdeas.GiftIdea;
+import org.iu.presentmanager.gifts.Gift;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -69,6 +73,14 @@ public class Occasion {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @OneToMany(mappedBy = "occasion")
+    @JsonIgnore
+    private Set<GiftIdea> giftIdeas = new HashSet<>();
+
+    @OneToMany(mappedBy = "occasion")
+    @JsonIgnore
+    private Set<Gift> gifts = new HashSet<>();
 
     // Validierung: fixed_month und fixed_day nur bei type=FIXED
     @PrePersist
