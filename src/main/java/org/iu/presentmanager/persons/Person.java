@@ -9,7 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.iu.presentmanager.giftIdeas.GiftIdea;
+import org.iu.presentmanager.gifts.Gift;
 import org.iu.presentmanager.person_interests.PersonInterest;
+import org.iu.presentmanager.tasks.Task;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -66,5 +69,17 @@ public class Person {
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<PersonInterest> personInterests = new HashSet<>();
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<GiftIdea> giftIdeas = new HashSet<>();
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Gift> gifts = new HashSet<>();
+
+    @OneToMany(mappedBy = "person")
+    @JsonIgnore
+    private Set<Task> tasks = new HashSet<>();
 
 }
