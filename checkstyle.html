@@ -67,7 +67,7 @@
 <td align="left">42</td>
 <td>0</td>
 <td>0</td>
-<td>1055</td></tr></table></section><section>
+<td>1060</td></tr></table></section><section>
 <h3><a name="Files"></a>Files</h3><a name="Files"></a>
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -259,7 +259,7 @@
 <td align="left"><a href="#org.2Fiu.2Fpresentmanager.2Fsecurity.2FSecurityConfig.java">org/iu/presentmanager/security/SecurityConfig.java</a></td>
 <td>0</td>
 <td>0</td>
-<td>12</td></tr>
+<td>17</td></tr>
 <tr class="a">
 <td align="left"><a href="#org.2Fiu.2Fpresentmanager.2Fsecurity.2FSupabaseJwtConverter.java">org/iu/presentmanager/security/SupabaseJwtConverter.java</a></td>
 <td>0</td>
@@ -310,7 +310,7 @@
 <tr class="a">
 <td align="left">design</td>
 <td><a class="externalLink" href="https://checkstyle.org/config_design.html#DesignForExtension">DesignForExtension</a></td>
-<td>165</td>
+<td>166</td>
 <td><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td></tr>
 <tr class="b">
 <td align="left"></td>
@@ -337,12 +337,12 @@
 <tr class="b">
 <td align="left"></td>
 <td><a class="externalLink" href="https://checkstyle.org/config_javadoc.html#JavadocVariable">JavadocVariable</a></td>
-<td>112</td>
+<td>113</td>
 <td><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td></tr>
 <tr class="a">
 <td align="left"></td>
 <td><a class="externalLink" href="https://checkstyle.org/config_javadoc.html#MissingJavadocMethod">MissingJavadocMethod</a></td>
-<td>218</td>
+<td>219</td>
 <td><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td></tr>
 <tr class="b">
 <td align="left">misc</td>
@@ -359,7 +359,7 @@
 <td><a class="externalLink" href="https://checkstyle.org/config_sizes.html#LineLength">LineLength</a>
 <ul>
 <li>fileExtensions: <code>&quot;java&quot;</code></li></ul></td>
-<td>187</td>
+<td>189</td>
 <td><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td></tr>
 <tr class="a">
 <td align="left">whitespace</td>
@@ -6144,67 +6144,97 @@
 <td>javadoc</td>
 <td>JavadocVariable</td>
 <td>Missing a Javadoc comment.</td>
-<td>21</td></tr>
+<td>32</td></tr>
 <tr class="b">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>javadoc</td>
+<td>JavadocVariable</td>
+<td>Missing a Javadoc comment.</td>
+<td>34</td></tr>
+<tr class="a">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>design</td>
+<td>DesignForExtension</td>
+<td>Class 'SecurityConfig' looks like designed for extension (can be subclassed), but the method 'jwtDecoder' does not have javadoc that explains how to do that safely. If class is not designed for extension consider making the class 'SecurityConfig' final or making the method 'jwtDecoder' static/final/abstract/empty, or adding allowed annotation for the method.</td>
+<td>37</td></tr>
+<tr class="b">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>javadoc</td>
+<td>MissingJavadocMethod</td>
+<td>Missing a Javadoc comment.</td>
+<td>37</td></tr>
+<tr class="a">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>sizes</td>
+<td>LineLength</td>
+<td>Line is longer than 80 characters (found 86).</td>
+<td>39</td></tr>
+<tr class="b">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>sizes</td>
+<td>LineLength</td>
+<td>Line is longer than 80 characters (found 88).</td>
+<td>44</td></tr>
+<tr class="a">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>design</td>
 <td>DesignForExtension</td>
 <td>Class 'SecurityConfig' looks like designed for extension (can be subclassed), but the method 'securityFilterChain' does not have javadoc that explains how to do that safely. If class is not designed for extension consider making the class 'SecurityConfig' final or making the method 'securityFilterChain' static/final/abstract/empty, or adding allowed annotation for the method.</td>
-<td>23</td></tr>
-<tr class="a">
+<td>50</td></tr>
+<tr class="b">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>javadoc</td>
 <td>MissingJavadocMethod</td>
 <td>Missing a Javadoc comment.</td>
-<td>23</td></tr>
-<tr class="b">
+<td>50</td></tr>
+<tr class="a">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>misc</td>
 <td>FinalParameters</td>
 <td>Parameter http should be final.</td>
-<td>24</td></tr>
-<tr class="a">
+<td>51</td></tr>
+<tr class="b">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>sizes</td>
 <td>LineLength</td>
 <td>Line is longer than 80 characters (found 82).</td>
-<td>26</td></tr>
-<tr class="b">
+<td>53</td></tr>
+<tr class="a">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>sizes</td>
 <td>LineLength</td>
 <td>Line is longer than 80 characters (found 87).</td>
-<td>29</td></tr>
-<tr class="a">
+<td>56</td></tr>
+<tr class="b">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>sizes</td>
 <td>LineLength</td>
 <td>Line is longer than 80 characters (found 81).</td>
-<td>35</td></tr>
-<tr class="b">
+<td>62</td></tr>
+<tr class="a">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>design</td>
 <td>DesignForExtension</td>
 <td>Class 'SecurityConfig' looks like designed for extension (can be subclassed), but the method 'corsConfigurationSource' does not have javadoc that explains how to do that safely. If class is not designed for extension consider making the class 'SecurityConfig' final or making the method 'corsConfigurationSource' static/final/abstract/empty, or adding allowed annotation for the method.</td>
-<td>42</td></tr>
-<tr class="a">
+<td>69</td></tr>
+<tr class="b">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>javadoc</td>
 <td>MissingJavadocMethod</td>
 <td>Missing a Javadoc comment.</td>
-<td>42</td></tr>
-<tr class="b">
-<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
-<td>sizes</td>
-<td>LineLength</td>
-<td>Line is longer than 80 characters (found 85).</td>
-<td>46</td></tr>
+<td>69</td></tr>
 <tr class="a">
 <td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
 <td>sizes</td>
 <td>LineLength</td>
+<td>Line is longer than 80 characters (found 85).</td>
+<td>73</td></tr>
+<tr class="b">
+<td align="left"><img src="images/icon_error_sml.gif" alt="" />&#160;Error</td>
+<td>sizes</td>
+<td>LineLength</td>
 <td>Line is longer than 80 characters (found 87).</td>
-<td>50</td></tr></table></section><section>
+<td>77</td></tr></table></section><section>
 <h4><a name="org.2Fiu.2Fpresentmanager.2Fsecurity.2FSupabaseJwtConverter.java"></a>org/iu/presentmanager/security/SupabaseJwtConverter.java</h4><a name="org.2Fiu.2Fpresentmanager.2Fsecurity.2FSupabaseJwtConverter.java"></a>
 <table border="0" class="bodyTable">
 <tr class="a">
