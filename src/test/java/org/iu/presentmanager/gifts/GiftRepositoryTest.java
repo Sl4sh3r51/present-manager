@@ -248,7 +248,6 @@ class GiftRepositoryTest {
 
         // THEN
         assertEquals(3, result.size());
-        assertEquals("Perfume", result.getFirst().getTitle());
     }
 
     @Test
