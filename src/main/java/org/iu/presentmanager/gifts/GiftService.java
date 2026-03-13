@@ -54,6 +54,7 @@ public class GiftService {
                 .orElseThrow(() -> new ResourceNotFoundException("Gift idea not found with id: " + giftIdea.getId()));
 
         Gift gift = new Gift();
+        gift.setGiftIdeaId(existingIdea.getId());
         gift.setPersonId(existingIdea.getPersonId());
         gift.setUserId(userId);
         gift.setOccasionId(existingIdea.getOccasionId());

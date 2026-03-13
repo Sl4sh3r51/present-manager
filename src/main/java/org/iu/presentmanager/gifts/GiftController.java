@@ -24,7 +24,7 @@ public class GiftController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PostMapping
+    @PostMapping("/gift-idea")
     public ResponseEntity<Gift> createGiftFromGiftIdea(@Valid @RequestBody GiftIdea giftIdea, @AuthenticationPrincipal UUID userId) {
         Gift created = giftService.createGiftFromGiftIdea(giftIdea, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
