@@ -2,7 +2,9 @@ package org.iu.presentmanager.interests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.iu.presentmanager.person_interests.PersonInterest;
@@ -15,8 +17,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "interests")
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Interest {

@@ -16,7 +16,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -116,7 +115,7 @@ class TaskServiceTest {
 
         // THEN
         assertEquals(1, result.size());
-        assertEquals(taskId, result.get(0).getId());
+        assertEquals(taskId, result.getFirst().getId());
         verify(taskRepository, times(1)).findByUserId(userId);
     }
 
@@ -178,7 +177,7 @@ class TaskServiceTest {
 
         // THEN
         assertEquals(1, result.size());
-        assertFalse(result.get(0).getIsDone());
+        assertFalse(result.getFirst().getIsDone());
     }
 
     @Test
@@ -195,7 +194,7 @@ class TaskServiceTest {
 
         // THEN
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getIsDone());
+        assertTrue(result.getFirst().getIsDone());
     }
 
     @Test

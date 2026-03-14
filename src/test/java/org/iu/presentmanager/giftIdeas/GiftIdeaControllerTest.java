@@ -94,7 +94,7 @@ class GiftIdeaControllerTest {
         // THEN
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
-        assertEquals(giftIdeaId, response.getBody().get(0).getId());
+        assertEquals(giftIdeaId, response.getBody().getFirst().getId());
         verify(giftIdeaService, times(1)).getAllGiftIdeasByUser(userId);
     }
 

@@ -229,7 +229,7 @@ class PersonInterestServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(interestId, result.get(0).getId().getInterestId());
+        assertEquals(interestId, result.getFirst().getId().getInterestId());
         verify(personRepository).findByIdAndUserId(personId, userId);
     }
 
@@ -275,7 +275,7 @@ class PersonInterestServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Reading", result.get(0).getName());
+        assertEquals("Reading", result.getFirst().getName());
     }
 
     @Test
@@ -325,13 +325,13 @@ class PersonInterestServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(userId, result.get(0).getUserId());
+        assertEquals(userId, result.getFirst().getUserId());
     }
 
     @Test
     void shouldGetAllByUser() {
         // GIVEN
-        when(personInterestRepository.findByUserIdAndPersonId(eq(userId), eq(null)))
+        when(personInterestRepository.findAllByUserId(eq(userId)))
                 .thenReturn(List.of(testPersonInterest));
 
         // WHEN

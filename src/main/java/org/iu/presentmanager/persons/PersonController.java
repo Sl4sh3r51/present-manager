@@ -43,7 +43,7 @@ public class PersonController {
             @Valid @RequestBody Person person,
             @AuthenticationPrincipal UUID userId
     ) {
-        Person created = personService.createPerson(person);
+        Person created = personService.createPerson(person, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 

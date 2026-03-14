@@ -149,8 +149,8 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(OccasionType.CUSTOM, result.get(0).getType());
-        assertEquals("Summer Vacation", result.get(0).getName());
+        assertEquals(OccasionType.CUSTOM, result.getFirst().getType());
+        assertEquals("Summer Vacation", result.getFirst().getName());
     }
 
     @Test
@@ -186,8 +186,8 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertFalse(result.get(0).getIsRecurring());
-        assertEquals("Summer Vacation", result.get(0).getName());
+        assertFalse(result.getFirst().getIsRecurring());
+        assertEquals("Summer Vacation", result.getFirst().getName());
     }
 
     @Test
@@ -245,7 +245,7 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getName().toLowerCase().contains("christ"));
+        assertTrue(result.getFirst().getName().toLowerCase().contains("christ"));
     }
 
     @Test
@@ -280,8 +280,8 @@ class OccasionRepositoryTest {
         // THEN
         assertEquals(1, userResult.size());
         assertEquals(1, otherUserResult.size());
-        assertEquals(userResult.get(0).getUserId(), userId);
-        assertEquals(otherUserResult.get(0).getUserId(), otherUserId);
+        assertEquals(userResult.getFirst().getUserId(), userId);
+        assertEquals(otherUserResult.getFirst().getUserId(), otherUserId);
     }
 
     @Test
@@ -292,8 +292,8 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Christmas", result.get(0).getName());
-        assertEquals(12, result.get(0).getFixedMonth());
+        assertEquals("Christmas", result.getFirst().getName());
+        assertEquals(12, result.getFirst().getFixedMonth());
     }
 
     @Test
@@ -329,8 +329,8 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Birthday", result.get(0).getName());
-        assertEquals(OccasionType.FIXED, result.get(0).getType());
+        assertEquals("Birthday", result.getFirst().getName());
+        assertEquals(OccasionType.FIXED, result.getFirst().getType());
     }
 
     @Test
@@ -341,7 +341,7 @@ class OccasionRepositoryTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Christmas", result.get(0).getName());
+        assertEquals("Christmas", result.getFirst().getName());
     }
 
     @Test

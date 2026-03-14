@@ -93,17 +93,14 @@ public class GiftIdeaService {
 
         // Validierung: Wenn Person geändert wird
         if (!existing.getPersonId().equals(updatedGiftIdea.getPersonId())) {
-//            personRepository.findByIdAndUserId(updatedGiftIdea.getPersonId(), userId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + updatedGiftIdea.getPersonId()));
                 throw new IllegalArgumentException("Person cannot be changed for existing gift idea");
         }
 
         // Validierung: Wenn Occasion geändert wird
         if (updatedGiftIdea.getOccasionId() != null &&
                 !updatedGiftIdea.getOccasionId().equals(existing.getOccasionId())) {
-//            occasionRepository.findByIdAndUserId(updatedGiftIdea.getOccasionId(), userId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Occasion not found with id: " + updatedGiftIdea.getOccasionId()));
-                throw new IllegalArgumentException("Occasion cannot be changed for existing gift idea");
+            occasionRepository.findByIdAndUserId(updatedGiftIdea.getOccasionId(), userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Occasion not found with id: " + updatedGiftIdea.getOccasionId()));
         }
 
         existing.setPersonId(updatedGiftIdea.getPersonId());
@@ -120,7 +117,7 @@ public class GiftIdeaService {
 
     @Transactional
     public void deleteGiftIdea(UUID id, UUID userId) {
-        if (!giftIdeaRepository.findByIdAndUserId(id, userId).isPresent()) {
+        if (giftIdeaRepository.findByIdAndUserId(id, userId).isEmpty()) {
             throw new ResourceNotFoundException("Gift idea not found with id: " + id);
         }
         giftIdeaRepository.deleteByIdAndUserId(id, userId);

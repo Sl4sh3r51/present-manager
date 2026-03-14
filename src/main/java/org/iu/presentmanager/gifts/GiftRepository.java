@@ -48,8 +48,8 @@ public interface GiftRepository extends JpaRepository<Gift, UUID> {
     @Query("SELECT g FROM Gift g WHERE g.userId = :userId ORDER BY " +
             "CASE g.status " +
             "WHEN 'PLANNED' THEN 1 " +
-            "WHEN 'PURCHASED' THEN 2 " +
-            "WHEN 'GIVEN' THEN 3 " +
+            "WHEN 'BOUGHT' THEN 2 " +
+            "WHEN 'GIFTED' THEN 3 " +
             "END")
     List<Gift> findByUserIdOrderByStatusWorkflow(@Param("userId") UUID userId);
 

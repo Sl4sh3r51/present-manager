@@ -27,17 +27,17 @@ public class InterestService {
     }
 
     public Interest getInterestByName(String name) {
-        return interestRepository.findByNameIgnoreCase(name).filter(interests -> interests.getName().equals(name))
+        return interestRepository.findByNameIgnoreCase(name).filter(interests -> interests.getName().equalsIgnoreCase(name))
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found"));
     }
 
     @Transactional
     public Interest createInterest(Interest interest) {
-        if (interestRepository.existsByNameIgnoreCase(interest.getName())) {
-            throw new DuplicateResourceException("Interest already exists with name: " + interest.getName());
-        }
         if (interest.getName() == null || interest.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Interest name cannot be null or empty");
+        }
+        if (interestRepository.existsByNameIgnoreCase(interest.getName())) {
+            throw new DuplicateResourceException("Interest already exists with name: " + interest.getName());
         }
         log.info("Creating interest: {}", interest.getName());
 

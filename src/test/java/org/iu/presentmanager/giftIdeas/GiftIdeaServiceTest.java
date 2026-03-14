@@ -332,21 +332,6 @@ class GiftIdeaServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenTryingToChangeOccasionDuringUpdate() {
-        // GIVEN
-        UUID newOccasionId = UUID.randomUUID();
-        GiftIdea updatedGiftIdea = new GiftIdea();
-        updatedGiftIdea.setPersonId(personId);
-        updatedGiftIdea.setOccasionId(newOccasionId);
-
-        when(giftIdeaRepository.findByIdAndUserId(giftIdeaId, userId)).thenReturn(Optional.of(testGiftIdea));
-
-        // WHEN & THEN
-        assertThrows(IllegalArgumentException.class, () -> giftIdeaService.updateGiftIdea(giftIdeaId, userId, updatedGiftIdea));
-        verify(giftIdeaRepository, never()).save(any());
-    }
-
-    @Test
     void shouldAllowUpdatingOccasionToNull() {
         // GIVEN
         testGiftIdea.setOccasionId(null);

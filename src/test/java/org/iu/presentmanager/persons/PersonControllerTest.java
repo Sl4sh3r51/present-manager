@@ -177,7 +177,7 @@ class   PersonControllerTest {
         newPerson.setBirthday(LocalDate.of(1985, 6, 20));
 
         testPerson.setId(UUID.randomUUID());
-        when(personService.createPerson(any(Person.class)))
+        when(personService.createPerson(any(Person.class), any(UUID.class)))
                 .thenReturn(testPerson);
 
         // WHEN & THEN
@@ -189,7 +189,7 @@ class   PersonControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Alice"));
 
-        verify(personService).createPerson(any(Person.class));
+        verify(personService).createPerson(any(Person.class), any(UUID.class));
     }
 
     @Test
@@ -205,7 +205,7 @@ class   PersonControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest());
 
-        verify(personService, never()).createPerson(any());
+        verify(personService, never()).createPerson(any(), any());
     }
 
     @Test
@@ -225,7 +225,7 @@ class   PersonControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest());
 
-        verify(personService, never()).createPerson(any());
+        verify(personService, never()).createPerson(any(), any());
     }
 
     @Test

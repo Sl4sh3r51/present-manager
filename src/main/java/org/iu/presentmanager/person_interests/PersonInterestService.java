@@ -108,7 +108,7 @@ public class PersonInterestService {
     }
 
     public List<PersonInterest> getAllByUser(UUID userId) {
-        return personInterestRepository.findByUserIdAndPersonId(userId, null);
+        return personInterestRepository.findAllByUserId(userId);
     }
 
     public boolean hasInterest(UUID personId, UUID userId, UUID interestId) {

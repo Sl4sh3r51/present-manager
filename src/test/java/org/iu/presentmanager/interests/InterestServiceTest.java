@@ -44,7 +44,7 @@ class InterestServiceTest {
 
         // Then
         assertEquals(1, result.size());
-        assertEquals("Test Interest", result.get(0).getName());
+        assertEquals("Test Interest", result.getFirst().getName());
     }
 
     @Test

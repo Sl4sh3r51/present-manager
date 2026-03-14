@@ -185,7 +185,7 @@ class PersonInterestRepositoryTest {
     @Test
     void shouldFindByUserIdAndPersonId() {
         // WHEN
-        List<PersonInterest> result = personInterestRepository.findByUserIdAndPersonId(userId, person1.getId());
+        List<PersonInterest> result = personInterestRepository.findAllByUserId(userId);
 
         // THEN
         assertNotNull(result);
@@ -196,8 +196,8 @@ class PersonInterestRepositoryTest {
     @Test
     void shouldIsolateResultsByUserId() {
         // WHEN
-        List<PersonInterest> userResult = personInterestRepository.findByUserIdAndPersonId(userId, person1.getId());
-        List<PersonInterest> otherUserResult = personInterestRepository.findByUserIdAndPersonId(otherUserId, otherPerson.getId());
+        List<PersonInterest> userResult = personInterestRepository.findAllByUserId(userId);
+        List<PersonInterest> otherUserResult = personInterestRepository.findAllByUserId(otherUserId);
 
         // THEN
         assertTrue(userResult.size() > otherUserResult.size());

@@ -19,6 +19,6 @@ public interface PersonInterestRepository extends JpaRepository<PersonInterest, 
 
     void deleteByPersonIdAndInterestId(UUID personId, UUID interestId);
 
-    @Query("SELECT pi FROM PersonInterest pi WHERE pi.person.userId = :userId AND pi.person.id = :personId")
-    List<PersonInterest> findByUserIdAndPersonId(@Param("userId") UUID userId, @Param("personId") UUID personId);
+    @Query("SELECT pi FROM PersonInterest pi WHERE pi.person.userId = :userId")
+    List<PersonInterest> findAllByUserId(@Param("userId") UUID userId);
 }

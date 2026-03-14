@@ -60,7 +60,7 @@ class PersonServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Alice", result.get(0).getName());
+        assertEquals("Alice", result.getFirst().getName());
         verify(personRepository).findByUserId(userId);
     }
 
@@ -91,7 +91,7 @@ class PersonServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(PersonStatus.PLANNED, result.get(0).getStatus());
+        assertEquals(PersonStatus.PLANNED, result.getFirst().getStatus());
         verify(personRepository).findByUserIdAndStatus(userId, PersonStatus.PLANNED);
     }
 
@@ -122,8 +122,8 @@ class PersonServiceTest {
 
         // THEN
         assertEquals(1, result.size());
-        assertEquals(PersonStatus.IDEAS, result.get(0).getStatus());
-        assertEquals("Bob", result.get(0).getName());
+        assertEquals(PersonStatus.IDEAS, result.getFirst().getStatus());
+        assertEquals("Bob", result.getFirst().getName());
     }
 
     @Test
@@ -185,7 +185,7 @@ class PersonServiceTest {
                 .thenReturn(newPerson);
 
         // WHEN
-        Person result = personService.createPerson(newPerson);
+        Person result = personService.createPerson(newPerson,userId);
 
         // THEN
         assertNotNull(result);
@@ -204,7 +204,7 @@ class PersonServiceTest {
 
         // When + THEN
         assertThrows(IllegalArgumentException.class, () ->
-                personService.createPerson(newPerson)
+                personService.createPerson(newPerson,userId)
         );
         verify(personRepository, never()).save(any());
     }
@@ -219,7 +219,7 @@ class PersonServiceTest {
 
         // When + THEN
         assertThrows(IllegalArgumentException.class, () ->
-                personService.createPerson(newPerson)
+                personService.createPerson(newPerson,userId)
         );
         verify(personRepository, never()).save(any());
     }
@@ -233,7 +233,7 @@ class PersonServiceTest {
         newPerson.setUserId(userId);
 
         // When + THEN
-        assertThrows(IllegalArgumentException.class, () -> personService.createPerson(newPerson));
+        assertThrows(IllegalArgumentException.class, () -> personService.createPerson(newPerson,userId));
         verify(personRepository, never()).save(any());
     }
 
@@ -255,7 +255,7 @@ class PersonServiceTest {
                 .thenReturn(savedPerson);
 
         // WHEN
-        Person result = personService.createPerson(newPerson);
+        Person result = personService.createPerson(newPerson,userId);
 
         // THEN
         assertNotNull(result.getId());
@@ -279,7 +279,7 @@ class PersonServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Frank", result.get(0).getName());
+        assertEquals("Frank", result.getFirst().getName());
         verify(personRepository).findUpcomingBirthdays(
                 eq(userId),
                 eq(today.getMonthValue()),
@@ -315,7 +315,7 @@ class PersonServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(3, result.get(0).getBirthday().getMonthValue());
+        assertEquals(3, result.getFirst().getBirthday().getMonthValue());
         verify(personRepository).findBirthdaysInMonth(userId, march);
     }
 

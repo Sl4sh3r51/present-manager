@@ -1,7 +1,9 @@
 package org.iu.presentmanager.person_interests;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.iu.presentmanager.interests.Interest;
 import org.iu.presentmanager.persons.Person;
 
@@ -10,8 +12,6 @@ import org.iu.presentmanager.persons.Person;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
 public class PersonInterest {
 
     @EmbeddedId

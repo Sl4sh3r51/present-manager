@@ -157,7 +157,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Christmas", result.get(0).getName());
+        assertEquals("Christmas", result.getFirst().getName());
         verify(occasionRepository).findByUserId(userId);
     }
 
@@ -216,7 +216,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(OccasionType.FIXED, result.get(0).getType());
+        assertEquals(OccasionType.FIXED, result.getFirst().getType());
         verify(occasionRepository).findByUserIdAndType(userId, OccasionType.FIXED);
     }
 
@@ -247,7 +247,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getIsRecurring());
+        assertTrue(result.getFirst().getIsRecurring());
         verify(occasionRepository).findByUserIdAndIsRecurring(userId, true);
     }
 
@@ -266,7 +266,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertFalse(result.get(0).getIsRecurring());
+        assertFalse(result.getFirst().getIsRecurring());
         verify(occasionRepository).findByUserIdAndIsRecurring(userId, false);
     }
 
@@ -282,7 +282,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getName().contains("Christ"));
+        assertTrue(result.getFirst().getName().contains("Christ"));
         verify(occasionRepository).searchByName(userId, "Christ");
     }
 
@@ -313,7 +313,7 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(12, result.get(0).getFixedMonth());
+        assertEquals(12, result.getFirst().getFixedMonth());
         verify(occasionRepository).findFixedOccasionByMonth(userId, 12);
     }
 
@@ -392,8 +392,8 @@ class OccasionServiceTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(OccasionType.FIXED, result.get(0).getType());
-        assertTrue(result.get(0).getIsRecurring());
+        assertEquals(OccasionType.FIXED, result.getFirst().getType());
+        assertTrue(result.getFirst().getIsRecurring());
         verify(occasionRepository).findRecurringFixedOccasion(userId);
     }
 
