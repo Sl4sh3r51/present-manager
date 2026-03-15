@@ -8,26 +8,41 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 permissions:
-    contents: write
-    actions: read
-    security-events: write
-    pages: write
+  contents: write
+  actions: read
+  security-events: write
+  pages: write
 jobs:
   build-develop:
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
     runs-on: ubuntu-latest
     environment: develop
     name: Build and Analysis (develop)
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: presentmanager_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -43,9 +58,11 @@ jobs:
 
       - name: Build and analyze
         env:
-          SPRING_DATASOURCE_URL: ${{ secrets.DB_URL }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/presentmanager_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://localhost/dummy
         run: mvn -B clean verify spotbugs:spotbugs pmd:pmd checkstyle:checkstyle site
 
       - name: Perform CodeQL Analysis
@@ -59,24 +76,24 @@ jobs:
           <!DOCTYPE html>
           <html>
           <head>
-              <title>Code Analysis Reports - ${{ matrix.environment }}</title>
+              <title>Code Analysis Reports - develop</title>
               <style>
                   body { font-family: Arial, sans-serif; margin: 40px; }
                   h1 { color: #333; }
-                  .report-link { 
-                      display: block; 
-                      padding: 15px; 
-                      margin: 10px 0; 
-                      background: #f5f5f5; 
-                      border-radius: 5px; 
-                      text-decoration: none; 
+                  .report-link {
+                      display: block;
+                      padding: 15px;
+                      margin: 10px 0;
+                      background: #f5f5f5;
+                      border-radius: 5px;
+                      text-decoration: none;
                       color: #0366d6;
                   }
                   .report-link:hover { background: #e5e5e5; }
               </style>
           </head>
           <body>
-              <h1>Code Analysis Reports - ${{ matrix.environment }} Branch</h1>
+              <h1>Code Analysis Reports - develop Branch</h1>
               <a class="report-link" href="../spotbugs.html">SpotBugs Report</a>
               <a class="report-link" href="../pmd.html">PMD Report</a>
               <a class="report-link" href="../checkstyle.html">Checkstyle Report</a>
@@ -90,55 +107,58 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site
-          destination_dir: ${{ matrix.environment }}
+          destination_dir: develop
           keep_files: false
-          commit_message: "Deploy reports for ${{ matrix.environment }} - Run #${{ github.run_number }}"
+          commit_message: "Deploy reports for develop - Run #${{ github.run_number }}"
 
       - name: Display Report URLs
         if: always()
         env:
-          Branch: ${{ matrix.environment }}
-          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/develop
         run: |
-            echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
-          
-            cat << 'EOF'
-          
-            ╔══════════════════════════════════════════════════════════════════╗
-            ║                     DEPLOYMENT SUCCESSFUL                        ║
-            ╚══════════════════════════════════════════════════════════════════╝
-            EOF
-          
-            echo ""
-            echo "Code Analysis Dashboard:"
-            echo "   → $PAGES_URL/index.html"
-            echo ""
-            echo " Individual Reports:"
-            echo "   SpotBugs    → $PAGES_URL/spotbugs.html"
-            echo "   PMD         → $PAGES_URL/pmd.html"
-            echo "   Checkstyle  → $PAGES_URL/checkstyle.html"
-            echo ""
-            echo "Security Analysis:"
-            echo "   CodeQL      → https://github.com/$REPO/security/code-scanning"
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::notice title=Reports Deployed (develop)::Dashboard -> $PAGES_URL/index.html"
+          echo ""
+          echo "Code Analysis Dashboard:"
+          echo "   -> $PAGES_URL/index.html"
+          echo ""
+          echo "Individual Reports:"
+          echo "   SpotBugs    -> $PAGES_URL/spotbugs.html"
+          echo "   PMD         -> $PAGES_URL/pmd.html"
+          echo "   Checkstyle  -> $PAGES_URL/checkstyle.html"
+          echo ""
+          echo "Security Analysis:"
+          echo "   CodeQL      -> https://github.com/${{ github.repository }}/security/code-scanning"
 
   build-main:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: main
-
     name: Build and Analysis (main)
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: presentmanager_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -151,11 +171,14 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
       - name: Build and analyze
         env:
-          SPRING_DATASOURCE_URL: ${{ secrets.DB_URL }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/presentmanager_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://localhost/dummy
         run: mvn -B clean verify spotbugs:spotbugs pmd:pmd checkstyle:checkstyle site
 
       - name: Perform CodeQL Analysis
@@ -169,24 +192,24 @@ jobs:
           <!DOCTYPE html>
           <html>
           <head>
-              <title>Code Analysis Reports - ${{ matrix.environment }}</title>
+              <title>Code Analysis Reports - main</title>
               <style>
                   body { font-family: Arial, sans-serif; margin: 40px; }
                   h1 { color: #333; }
-                  .report-link { 
-                      display: block; 
-                      padding: 15px; 
-                      margin: 10px 0; 
-                      background: #f5f5f5; 
-                      border-radius: 5px; 
-                      text-decoration: none; 
+                  .report-link {
+                      display: block;
+                      padding: 15px;
+                      margin: 10px 0;
+                      background: #f5f5f5;
+                      border-radius: 5px;
+                      text-decoration: none;
                       color: #0366d6;
                   }
                   .report-link:hover { background: #e5e5e5; }
               </style>
           </head>
           <body>
-              <h1>Code Analysis Reports - ${{ matrix.environment }} Branch</h1>
+              <h1>Code Analysis Reports - main Branch</h1>
               <a class="report-link" href="../spotbugs.html">SpotBugs Report</a>
               <a class="report-link" href="../pmd.html">PMD Report</a>
               <a class="report-link" href="../checkstyle.html">Checkstyle Report</a>
@@ -194,41 +217,30 @@ jobs:
           </html>
           EOF
 
-      - name: Deploy to GitHub Pages (Develop)
+      - name: Deploy to GitHub Pages (Main)
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site
-          destination_dir: ${{ matrix.environment }}
+          destination_dir: main
           keep_files: false
-          commit_message: "Deploy reports for ${{ matrix.environment }} - Run #${{ github.run_number }}"
+          commit_message: "Deploy reports for main - Run #${{ github.run_number }}"
 
       - name: Display Report URLs
         if: always()
         env:
-          Branch: ${{ matrix.environment }}
-          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.environment }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/main
         run: |
-            echo "::notice title=📊 Reports Deployed ($BRANCH)::Dashboard → $PAGES_URL/index.html"
-
-            cat << 'EOF'
-
-            ╔══════════════════════════════════════════════════════════════════╗
-            ║                     DEPLOYMENT SUCCESSFUL                        ║
-            ╚══════════════════════════════════════════════════════════════════╝
-            EOF
-
-            echo ""
-            echo "Code Analysis Dashboard:"
-            echo "   → $PAGES_URL/index.html"
-            echo ""
-            echo " Individual Reports:"
-            echo "   SpotBugs    → $PAGES_URL/spotbugs.html"
-            echo "   PMD         → $PAGES_URL/pmd.html"
-            echo "   Checkstyle  → $PAGES_URL/checkstyle.html"
-            echo ""
-            echo "Security Analysis:"
-            echo "   CodeQL      → https://github.com/$REPO/security/code-scanning"
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "::notice title=Reports Deployed (main)::Dashboard -> $PAGES_URL/index.html"
+          echo ""
+          echo "Code Analysis Dashboard:"
+          echo "   -> $PAGES_URL/index.html"
+          echo ""
+          echo "Individual Reports:"
+          echo "   SpotBugs    -> $PAGES_URL/spotbugs.html"
+          echo "   PMD         -> $PAGES_URL/pmd.html"
+          echo "   Checkstyle  -> $PAGES_URL/checkstyle.html"
+          echo ""
+          echo "Security Analysis:"
+          echo "   CodeQL      -> https://github.com/${{ github.repository }}/security/code-scanning"

@@ -44,6 +44,18 @@ public class PersonService {
         return personRepository.save(person);
     }
 
+    public Person updatePerson(UUID id, Person person, UUID userId) {
+        Person existingPerson =  personRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found"));
+
+        existingPerson.setName(person.getName());
+        existingPerson.setBirthday(person.getBirthday());
+        existingPerson.setStatus(person.getStatus());
+        existingPerson.setNotes(person.getNotes());
+
+        return personRepository.save(existingPerson);
+    }
+
     public List<Person> getTodaysBirthdays(UUID userId) {
         LocalDate today = LocalDate.now();
         return personRepository.findUpcomingBirthdays(

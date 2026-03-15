@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 import org.iu.presentmanager.gifts.Gift;
 import org.iu.presentmanager.occasions.Occasion;
 import org.iu.presentmanager.persons.Person;
@@ -59,6 +61,7 @@ public class GiftIdea {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "source", nullable = false)
     private GiftSource source = GiftSource.MANUAL;
 

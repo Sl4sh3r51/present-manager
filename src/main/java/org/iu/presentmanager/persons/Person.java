@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 import org.iu.presentmanager.giftIdeas.GiftIdea;
 import org.iu.presentmanager.gifts.Gift;
 import org.iu.presentmanager.person_interests.PersonInterest;
@@ -50,6 +52,7 @@ public class Person {
     @NotNull(message = "Status is mandatory")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private PersonStatus status;
 
     @Column(name = "birthday")
