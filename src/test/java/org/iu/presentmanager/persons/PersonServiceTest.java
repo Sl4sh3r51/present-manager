@@ -396,14 +396,13 @@ class PersonServiceTest {
         // GIVEN
         when(personRepository.findById(personId))
                 .thenReturn(Optional.of(testPerson));
-        doNothing().when(personRepository).delete(testPerson);
 
         // WHEN
         personService.deletePerson(personId, userId);
 
         // THEN
         verify(personRepository).findById(personId);
-        verify(personRepository).delete(testPerson);
+        verify(personRepository).deleteByIdAndUserId(personId, userId);
     }
 
     @Test
@@ -441,12 +440,12 @@ class PersonServiceTest {
         // GIVEN
         when(personRepository.findById(personId))
                 .thenReturn(Optional.of(testPerson));
-        doNothing().when(personRepository).delete(any());
+        doNothing().when(personRepository).deleteByIdAndUserId(any(), any());
 
         // WHEN
         personService.deletePerson(personId, userId);
 
         // THEN
-        verify(personRepository).delete(testPerson);
+        verify(personRepository).deleteByIdAndUserId(personId, userId);
     }
 }

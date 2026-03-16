@@ -75,8 +75,8 @@ public class PersonService {
 
     @Transactional
     public void deletePerson(UUID id, UUID userId) {
-        Person person = getPersonById(id, userId);
-        personRepository.delete(person);
+        getPersonById(id, userId);
+        personRepository.deleteByIdAndUserId(id, userId);
         log.info("Deleted person: {} for user: {}", id, userId);
     }
 }

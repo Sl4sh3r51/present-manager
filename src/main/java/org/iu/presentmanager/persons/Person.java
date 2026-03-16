@@ -81,7 +81,7 @@ public class Person {
     @JsonIgnore
     private Set<Gift> gifts = new HashSet<>();
 
-    @OneToMany(mappedBy = "person")
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 

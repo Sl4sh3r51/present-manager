@@ -37,7 +37,7 @@ public class Interest {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "interest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "interest")
     @JsonIgnore
     private Set<PersonInterest> personInterests = new HashSet<>();
 }
