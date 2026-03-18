@@ -1,290 +1,483 @@
 package org.iu.presentmanager.tasks;
 
+import org.iu.presentmanager.config.WebConfig;
+import org.iu.presentmanager.exceptions.ResourceNotFoundException;
+import org.iu.presentmanager.security.SecurityConfig;
+import org.iu.presentmanager.security.SupabaseJwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(TaskController.class)
+@ActiveProfiles("test")
+@Import({SecurityConfig.class, WebConfig.class})
 class TaskControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
     private TaskService taskService;
 
-    @InjectMocks
-    private TaskController taskController;
+    @MockitoBean
+    private SupabaseJwtConverter supabaseJwtConverter;
 
-    private UUID userId;
-    private UUID personId;
-    private UUID taskId;
+    private final UUID userId   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final UUID personId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private final UUID taskId   = UUID.fromString("00000000-0000-0000-0000-000000000003");
+
     private Task testTask;
 
     @BeforeEach
     void setUp() {
-        userId = UUID.randomUUID();
-        personId = UUID.randomUUID();
-        taskId = UUID.randomUUID();
+        testTask = createTestTask("Test Task", false);
+    }
 
-        testTask = new Task();
-        testTask.setId(taskId);
-        testTask.setUserId(userId);
-        testTask.setPersonId(personId);
-        testTask.setTitle("Test Task");
-        testTask.setIsDone(false);
+    private Task createTestTask(String title, boolean isDone) {
+        Task task = new Task();
+        task.setId(taskId);
+        task.setUserId(userId);
+        task.setPersonId(personId);
+        task.setTitle(title);
+        task.setIsDone(isDone);
+        return task;
     }
 
     @Test
-    void shouldCreateTaskAndReturnCreatedStatus() {
+    void shouldCreateTaskAndReturnCreatedStatus() throws Exception {
         // GIVEN
         Task newTask = new Task();
         newTask.setPersonId(personId);
         newTask.setTitle("New Task");
+        newTask.setIsDone(false);
 
         when(taskService.createTask(any(Task.class), eq(userId))).thenReturn(testTask);
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.createTask(newTask, userId);
+        // WHEN & THEN
+        mockMvc.perform(post("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newTask)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(taskId.toString()))
+                .andExpect(jsonPath("$.title").value("Test Task"))
+                .andExpect(jsonPath("$.isDone").value(false));
 
-        // THEN
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(taskId, response.getBody().getId());
-        verify(taskService, times(1)).createTask(any(Task.class), eq(userId));
+        verify(taskService).createTask(any(Task.class), eq(userId));
     }
 
     @Test
-    void shouldReturnCreatedTaskObject() {
+    void shouldReturnBadRequestWhenCreatingTaskWithMissingTitle() throws Exception {
+        // GIVEN — title fehlt (@NotBlank)
+        String invalidTaskJson = "{\"personId\":\"" + personId + "\",\"isDone\":false}";
+
+        // WHEN & THEN
+        mockMvc.perform(post("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(invalidTaskJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+
+        verify(taskService, never()).createTask(any(), any());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingTaskWithMissingPersonId() throws Exception {
+        // GIVEN — personId fehlt (@NotNull)
+        String invalidTaskJson = "{\"title\":\"Task\",\"isDone\":false}";
+
+        // WHEN & THEN
+        mockMvc.perform(post("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(invalidTaskJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+
+        verify(taskService, never()).createTask(any(), any());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenPersonDoesNotExistOnCreate() throws Exception {
         // GIVEN
         Task newTask = new Task();
-        newTask.setTitle("Test Task");
-        when(taskService.createTask(any(Task.class), eq(userId))).thenReturn(testTask);
+        newTask.setPersonId(personId);
+        newTask.setTitle("Task");
+        newTask.setIsDone(false);
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.createTask(newTask, userId);
+        when(taskService.createTask(any(Task.class), eq(userId)))
+                .thenThrow(new ResourceNotFoundException("Person not found with id: " + personId));
 
-        // THEN
-        assertEquals(testTask, response.getBody());
+        // WHEN & THEN
+        mockMvc.perform(post("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newTask)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(taskService).createTask(any(Task.class), eq(userId));
     }
 
     @Test
-    void shouldGetAllTasksWhenNoFilterParametersProvided() {
+    void shouldReturnAllTasksWhenNoFilterProvided() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getAllTasksByUser(userId)).thenReturn(tasks);
+        when(taskService.getAllTasksByUser(userId)).thenReturn(List.of(testTask));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getAllTasks(userId, null, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(taskId.toString()))
+                .andExpect(jsonPath("$[0].title").value("Test Task"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        assertEquals(taskId, response.getBody().getFirst().getId());
-        verify(taskService, times(1)).getAllTasksByUser(userId);
+        verify(taskService).getAllTasksByUser(userId);
+        verifyNoMoreInteractions(taskService);
     }
 
     @Test
-    void shouldGetTasksByPersonWhenPersonIdProvided() {
+    void shouldReturnEmptyListWhenNoTasksExist() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getTasksByPerson(userId, personId)).thenReturn(tasks);
+        when(taskService.getAllTasksByUser(userId)).thenReturn(Collections.emptyList());
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getAllTasks(userId, personId, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(taskService, times(1)).getTasksByPerson(userId, personId);
+        verify(taskService).getAllTasksByUser(userId);
+    }
+
+    @Test
+    void shouldFilterTasksByPersonId() throws Exception {
+        // GIVEN
+        when(taskService.getTasksByPerson(userId, personId)).thenReturn(List.of(testTask));
+
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .param("personId", personId.toString())
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        verify(taskService).getTasksByPerson(userId, personId);
         verify(taskService, never()).getAllTasksByUser(any());
     }
 
     @Test
-    void shouldGetTasksByStatusWhenIsDoneProvided() {
+    void shouldFilterTasksByIsDone() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getTasksByStatus(userId, false)).thenReturn(tasks);
+        when(taskService.getTasksByStatus(userId, false)).thenReturn(List.of(testTask));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getAllTasks(userId, null, false);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .param("isDone", "false")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].isDone").value(false));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(taskService, times(1)).getTasksByStatus(userId, false);
+        verify(taskService).getTasksByStatus(userId, false);
     }
 
     @Test
-    void shouldGetTasksByPersonAndStatusWhenBothProvided() {
+    void shouldFilterTasksByPersonAndIsDone() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getTasksByPersonAndStatus(userId, personId, false)).thenReturn(tasks);
+        when(taskService.getTasksByPersonAndStatus(userId, personId, false)).thenReturn(List.of(testTask));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getAllTasks(userId, personId, false);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .param("personId", personId.toString())
+                        .param("isDone", "false")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(taskService, times(1)).getTasksByPersonAndStatus(userId, personId, false);
+        verify(taskService).getTasksByPersonAndStatus(userId, personId, false);
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoTasksFound() {
+    void shouldReturnNotFoundWhenPersonDoesNotExistOnFilter() throws Exception {
         // GIVEN
-        when(taskService.getAllTasksByUser(userId)).thenReturn(List.of());
+        when(taskService.getTasksByPerson(userId, personId))
+                .thenThrow(new ResourceNotFoundException("Person not found with id: " + personId));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getAllTasks(userId, null, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks")
+                        .param("personId", personId.toString())
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
+        verify(taskService).getTasksByPerson(userId, personId);
     }
 
     @Test
-    void shouldGetTaskByIdSuccessfully() {
+    void shouldReturnTaskById() throws Exception {
         // GIVEN
         when(taskService.getTaskById(taskId, userId)).thenReturn(testTask);
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.getTaskById(taskId, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks/{id}", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(taskId.toString()))
+                .andExpect(jsonPath("$.title").value("Test Task"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(taskId, response.getBody().getId());
-        verify(taskService, times(1)).getTaskById(taskId, userId);
+        verify(taskService).getTaskById(taskId, userId);
     }
 
     @Test
-    void shouldGetTasksOrderedByStatus() {
+    void shouldReturnNotFoundWhenTaskDoesNotExist() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getTasksOrderedByStatus(userId)).thenReturn(tasks);
+        when(taskService.getTaskById(taskId, userId))
+                .thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getTasksOrderedByStatus(userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks/{id}", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(taskService, times(1)).getTasksOrderedByStatus(userId);
+        verify(taskService).getTaskById(taskId, userId);
     }
 
     @Test
-    void shouldGetOpenTasksByPerson() {
+    void shouldReturnTasksOrderedByStatus() throws Exception {
         // GIVEN
-        List<Task> tasks = List.of(testTask);
-        when(taskService.getOpenTasksByPerson(userId, personId)).thenReturn(tasks);
+        Task doneTask = createTestTask("Done Task", true);
+        when(taskService.getTasksOrderedByStatus(userId))
+                .thenReturn(List.of(testTask, doneTask));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getOpenTasksByPerson(personId, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks/ordered")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].isDone").value(false))
+                .andExpect(jsonPath("$[1].isDone").value(true));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(taskService, times(1)).getOpenTasksByPerson(userId, personId);
+        verify(taskService).getTasksOrderedByStatus(userId);
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoOpenTasksFound() {
+    void shouldReturnOpenTasksByPerson() throws Exception {
         // GIVEN
-        when(taskService.getOpenTasksByPerson(userId, personId)).thenReturn(List.of());
+        when(taskService.getOpenTasksByPerson(userId, personId)).thenReturn(List.of(testTask));
 
-        // WHEN
-        ResponseEntity<List<Task>> response = taskController.getOpenTasksByPerson(personId, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks/open/person/{personId}", personId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].isDone").value(false));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
+        verify(taskService).getOpenTasksByPerson(userId, personId);
     }
 
     @Test
-    void shouldToggleTaskStatusSuccessfully() {
+    void shouldReturnEmptyListWhenNoOpenTasksForPerson() throws Exception {
         // GIVEN
-        testTask.setIsDone(true);
-        when(taskService.toggleTaskStatus(taskId, userId)).thenReturn(testTask);
+        when(taskService.getOpenTasksByPerson(userId, personId)).thenReturn(Collections.emptyList());
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.toggleTaskStatus(taskId, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/tasks/open/person/{personId}", personId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().getIsDone());
-        verify(taskService, times(1)).toggleTaskStatus(taskId, userId);
+        verify(taskService).getOpenTasksByPerson(userId, personId);
     }
 
     @Test
-    void shouldMarkTaskAsDone() {
+    void shouldToggleTaskStatusFromFalseToTrue() throws Exception {
         // GIVEN
-        testTask.setIsDone(true);
-        when(taskService.markTaskAsDone(taskId, userId)).thenReturn(testTask);
+        Task toggledTask = createTestTask("Test Task", true);
+        when(taskService.toggleTaskStatus(taskId, userId)).thenReturn(toggledTask);
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.markTaskAsDone(taskId, userId);
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/toggle", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isDone").value(true));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().getIsDone());
-        verify(taskService, times(1)).markTaskAsDone(taskId, userId);
+        verify(taskService).toggleTaskStatus(taskId, userId);
     }
 
     @Test
-    void shouldMarkTaskAsNotDone() {
+    void shouldReturnNotFoundWhenTogglingNonExistentTask() throws Exception {
         // GIVEN
-        testTask.setIsDone(false);
-        when(taskService.markTaskAsNotDone(taskId, userId)).thenReturn(testTask);
+        when(taskService.toggleTaskStatus(taskId, userId))
+                .thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        // WHEN
-        ResponseEntity<Task> response = taskController.markTaskAsNotDone(taskId, userId);
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/toggle", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertFalse(response.getBody().getIsDone());
-        verify(taskService, times(1)).markTaskAsNotDone(taskId, userId);
+        verify(taskService).toggleTaskStatus(taskId, userId);
     }
 
     @Test
-    void shouldDeleteTaskAndReturnNoContentStatus() {
+    void shouldMarkTaskAsDone() throws Exception {
+        // GIVEN
+        Task doneTask = createTestTask("Test Task", true);
+        when(taskService.markTaskAsDone(taskId, userId)).thenReturn(doneTask);
+
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/done", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isDone").value(true));
+
+        verify(taskService).markTaskAsDone(taskId, userId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenMarkingDoneNonExistentTask() throws Exception {
+        // GIVEN
+        when(taskService.markTaskAsDone(taskId, userId))
+                .thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/done", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(taskService).markTaskAsDone(taskId, userId);
+    }
+
+    @Test
+    void shouldMarkTaskAsNotDone() throws Exception {
+        // GIVEN
+        Task notDoneTask = createTestTask("Test Task", false);
+        when(taskService.markTaskAsNotDone(taskId, userId)).thenReturn(notDoneTask);
+
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/not-done", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isDone").value(false));
+
+        verify(taskService).markTaskAsNotDone(taskId, userId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenMarkingNotDoneNonExistentTask() throws Exception {
+        // GIVEN
+        when(taskService.markTaskAsNotDone(taskId, userId))
+                .thenThrow(new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // WHEN & THEN
+        mockMvc.perform(patch("/tasks/{id}/not-done", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(taskService).markTaskAsNotDone(taskId, userId);
+    }
+
+    @Test
+    void shouldDeleteTaskAndReturnNoContent() throws Exception {
         // GIVEN
         doNothing().when(taskService).deleteTask(taskId, userId);
 
-        // WHEN
-        ResponseEntity<Void> response = taskController.deleteTask(taskId, userId);
+        // WHEN & THEN
+        mockMvc.perform(delete("/tasks/{id}", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNoContent());
 
-        // THEN
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(taskService, times(1)).deleteTask(taskId, userId);
+        verify(taskService).deleteTask(taskId, userId);
     }
 
     @Test
-    void shouldDeleteAllCompletedTasksAndReturnNoContentStatus() {
+    void shouldReturnNotFoundWhenDeletingNonExistentTask() throws Exception {
+        // GIVEN
+        doThrow(new ResourceNotFoundException("Task not found with id: " + taskId))
+                .when(taskService).deleteTask(taskId, userId);
+
+        // WHEN & THEN
+        mockMvc.perform(delete("/tasks/{id}", taskId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(taskService).deleteTask(taskId, userId);
+    }
+
+    @Test
+    void shouldDeleteAllCompletedTasksAndReturnNoContent() throws Exception {
         // GIVEN
         doNothing().when(taskService).deleteAllCompletedTasks(userId);
 
-        // WHEN
-        ResponseEntity<Void> response = taskController.deleteAllCompletedTasks(userId);
+        // WHEN & THEN
+        mockMvc.perform(delete("/tasks/completed")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNoContent());
 
-        // THEN
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(taskService, times(1)).deleteAllCompletedTasks(userId);
+        verify(taskService).deleteAllCompletedTasks(userId);
     }
 }
-

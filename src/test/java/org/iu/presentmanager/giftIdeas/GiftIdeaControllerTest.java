@@ -1,55 +1,75 @@
 package org.iu.presentmanager.giftIdeas;
 
+import org.iu.presentmanager.config.WebConfig;
+import org.iu.presentmanager.exceptions.ResourceNotFoundException;
+import org.iu.presentmanager.security.SecurityConfig;
+import org.iu.presentmanager.security.SupabaseJwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(GiftIdeaController.class)
+@ActiveProfiles("test")
+@Import({SecurityConfig.class, WebConfig.class})
 class GiftIdeaControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
     private GiftIdeaService giftIdeaService;
 
-    @InjectMocks
-    private GiftIdeaController giftIdeaController;
+    @MockitoBean
+    private SupabaseJwtConverter supabaseJwtConverter;
 
-    private UUID userId;
-    private UUID personId;
-    private UUID occasionId;
-    private UUID giftIdeaId;
+    private final UUID userId     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final UUID personId   = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private final UUID occasionId = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    private final UUID giftIdeaId = UUID.fromString("00000000-0000-0000-0000-000000000004");
+
     private GiftIdea testGiftIdea;
 
     @BeforeEach
     void setUp() {
-        userId = UUID.randomUUID();
-        personId = UUID.randomUUID();
-        occasionId = UUID.randomUUID();
-        giftIdeaId = UUID.randomUUID();
+        testGiftIdea = createTestGiftIdea("Test Gift Idea", GiftSource.MANUAL);
+    }
 
-        testGiftIdea = new GiftIdea();
-        testGiftIdea.setId(giftIdeaId);
-        testGiftIdea.setUserId(userId);
-        testGiftIdea.setPersonId(personId);
-        testGiftIdea.setOccasionId(occasionId);
-        testGiftIdea.setTitle("Test Gift Idea");
-        testGiftIdea.setSource(GiftSource.MANUAL);
+    private GiftIdea createTestGiftIdea(String title, GiftSource source) {
+        GiftIdea giftIdea = new GiftIdea();
+        giftIdea.setId(giftIdeaId);
+        giftIdea.setUserId(userId);
+        giftIdea.setPersonId(personId);
+        giftIdea.setOccasionId(occasionId);
+        giftIdea.setTitle(title);
+        giftIdea.setSource(source);
+        return giftIdea;
     }
 
     @Test
-    void shouldCreateGiftIdeaAndReturnCreatedStatus() {
+    void shouldCreateGiftIdeaAndReturnCreatedStatus() throws Exception {
         // GIVEN
         GiftIdea newGiftIdea = new GiftIdea();
         newGiftIdea.setPersonId(personId);
@@ -58,211 +78,390 @@ class GiftIdeaControllerTest {
 
         when(giftIdeaService.createGiftIdea(any(GiftIdea.class), eq(userId))).thenReturn(testGiftIdea);
 
-        // WHEN
-        ResponseEntity<GiftIdea> response = giftIdeaController.createGiftIdea(newGiftIdea, userId);
+        // WHEN & THEN
+        mockMvc.perform(post("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(giftIdeaId.toString()))
+                .andExpect(jsonPath("$.title").value("Test Gift Idea"))
+                .andExpect(jsonPath("$.source").value("MANUAL"));
 
-        // THEN
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(giftIdeaId, response.getBody().getId());
-        verify(giftIdeaService, times(1)).createGiftIdea(any(GiftIdea.class), eq(userId));
+        verify(giftIdeaService).createGiftIdea(any(GiftIdea.class), eq(userId));
     }
 
     @Test
-    void shouldReturnCreatedGiftIdeaObject() {
+    void shouldReturnBadRequestWhenCreatingGiftIdeaWithMissingTitle() throws Exception {
+        // GIVEN — title fehlt (@NotBlank)
+        String invalidJson = "{\"personId\":\"" + personId + "\",\"occasionId\":\"" + occasionId + "\"}";
+
+        // WHEN & THEN
+        mockMvc.perform(post("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(invalidJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+
+        verify(giftIdeaService, never()).createGiftIdea(any(), any());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingGiftIdeaWithMissingPersonId() throws Exception {
+        // GIVEN — personId fehlt (@NotNull)
+        String invalidJson = "{\"title\":\"Idea\",\"occasionId\":\"" + occasionId + "\"}";
+
+        // WHEN & THEN
+        mockMvc.perform(post("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(invalidJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+
+        verify(giftIdeaService, never()).createGiftIdea(any(), any());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenPersonDoesNotExistOnCreate() throws Exception {
         // GIVEN
         GiftIdea newGiftIdea = new GiftIdea();
-        newGiftIdea.setTitle("Test Gift Idea");
-        when(giftIdeaService.createGiftIdea(any(GiftIdea.class), eq(userId))).thenReturn(testGiftIdea);
+        newGiftIdea.setPersonId(personId);
+        newGiftIdea.setOccasionId(occasionId);
+        newGiftIdea.setTitle("Idea");
 
-        // WHEN
-        ResponseEntity<GiftIdea> response = giftIdeaController.createGiftIdea(newGiftIdea, userId);
+        when(giftIdeaService.createGiftIdea(any(GiftIdea.class), eq(userId)))
+                .thenThrow(new ResourceNotFoundException("Person not found with id: " + personId));
 
-        // THEN
-        assertEquals(testGiftIdea, response.getBody());
+        // WHEN & THEN
+        mockMvc.perform(post("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(giftIdeaService).createGiftIdea(any(GiftIdea.class), eq(userId));
     }
 
     @Test
-    void shouldGetAllGiftIdeasWhenNoFilterParametersProvided() {
+    void shouldReturnNotFoundWhenOccasionDoesNotExistOnCreate() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getAllGiftIdeasByUser(userId)).thenReturn(giftIdeas);
+        GiftIdea newGiftIdea = new GiftIdea();
+        newGiftIdea.setPersonId(personId);
+        newGiftIdea.setOccasionId(occasionId);
+        newGiftIdea.setTitle("Idea");
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, null, null, null);
+        when(giftIdeaService.createGiftIdea(any(GiftIdea.class), eq(userId)))
+                .thenThrow(new ResourceNotFoundException("Occasion not found with id: " + occasionId));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        assertEquals(giftIdeaId, response.getBody().getFirst().getId());
-        verify(giftIdeaService, times(1)).getAllGiftIdeasByUser(userId);
+        // WHEN & THEN
+        mockMvc.perform(post("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(giftIdeaService).createGiftIdea(any(GiftIdea.class), eq(userId));
     }
 
     @Test
-    void shouldGetGiftIdeasByPersonWhenPersonIdProvided() {
+    void shouldReturnAllGiftIdeasWhenNoFilterProvided() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getGiftIdeasByPerson(userId, personId)).thenReturn(giftIdeas);
+        when(giftIdeaService.getAllGiftIdeasByUser(userId)).thenReturn(List.of(testGiftIdea));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, personId, null, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(giftIdeaId.toString()))
+                .andExpect(jsonPath("$[0].title").value("Test Gift Idea"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).getGiftIdeasByPerson(userId, personId);
+        verify(giftIdeaService).getAllGiftIdeasByUser(userId);
+        verifyNoMoreInteractions(giftIdeaService);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoGiftIdeasExist() throws Exception {
+        // GIVEN
+        when(giftIdeaService.getAllGiftIdeasByUser(userId)).thenReturn(Collections.emptyList());
+
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(giftIdeaService).getAllGiftIdeasByUser(userId);
+    }
+
+    @Test
+    void shouldFilterGiftIdeasByPersonId() throws Exception {
+        // GIVEN
+        when(giftIdeaService.getGiftIdeasByPerson(userId, personId)).thenReturn(List.of(testGiftIdea));
+
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .param("personId", personId.toString())
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        verify(giftIdeaService).getGiftIdeasByPerson(userId, personId);
         verify(giftIdeaService, never()).getAllGiftIdeasByUser(any());
     }
 
     @Test
-    void shouldGetGiftIdeasByOccasionWhenOccasionIdProvided() {
+    void shouldFilterGiftIdeasByOccasionId() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getGiftIdeasByOccasion(userId, occasionId)).thenReturn(giftIdeas);
+        when(giftIdeaService.getGiftIdeasByOccasion(userId, occasionId)).thenReturn(List.of(testGiftIdea));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, null, occasionId, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .param("occasionId", occasionId.toString())
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).getGiftIdeasByOccasion(userId, occasionId);
+        verify(giftIdeaService).getGiftIdeasByOccasion(userId, occasionId);
     }
 
     @Test
-    void shouldGetGiftIdeasBySourceWhenSourceProvided() {
+    void shouldFilterGiftIdeasBySource() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getGiftIdeasBySource(userId, GiftSource.AI)).thenReturn(giftIdeas);
+        when(giftIdeaService.getGiftIdeasBySource(userId, GiftSource.AI))
+                .thenReturn(List.of(createTestGiftIdea("AI Idea", GiftSource.AI)));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, null, null, GiftSource.AI);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .param("source", "AI")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].source").value("AI"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).getGiftIdeasBySource(userId, GiftSource.AI);
+        verify(giftIdeaService).getGiftIdeasBySource(userId, GiftSource.AI);
     }
 
     @Test
-    void shouldGetGiftIdeasByPersonAndOccasionWhenBothProvided() {
+    void shouldFilterGiftIdeasByPersonAndOccasion() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getGiftIdeasByPersonAndOccasion(userId, personId, occasionId)).thenReturn(giftIdeas);
+        when(giftIdeaService.getGiftIdeasByPersonAndOccasion(userId, personId, occasionId))
+                .thenReturn(List.of(testGiftIdea));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, personId, occasionId, null);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas")
+                        .param("personId", personId.toString())
+                        .param("occasionId", occasionId.toString())
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).getGiftIdeasByPersonAndOccasion(userId, personId, occasionId);
+        verify(giftIdeaService).getGiftIdeasByPersonAndOccasion(userId, personId, occasionId);
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoGiftIdeasFound() {
-        // GIVEN
-        when(giftIdeaService.getAllGiftIdeasByUser(userId)).thenReturn(List.of());
-
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getAllGiftIdeas(userId, null, null, null);
-
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
-    }
-
-    @Test
-    void shouldGetGiftIdeaByIdSuccessfully() {
+    void shouldReturnGiftIdeaById() throws Exception {
         // GIVEN
         when(giftIdeaService.getGiftIdeaById(giftIdeaId, userId)).thenReturn(testGiftIdea);
 
-        // WHEN
-        ResponseEntity<GiftIdea> response = giftIdeaController.getGiftIdeaById(giftIdeaId, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(giftIdeaId.toString()))
+                .andExpect(jsonPath("$.title").value("Test Gift Idea"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(giftIdeaId, response.getBody().getId());
-        verify(giftIdeaService, times(1)).getGiftIdeaById(giftIdeaId, userId);
+        verify(giftIdeaService).getGiftIdeaById(giftIdeaId, userId);
     }
 
     @Test
-    void shouldSearchGiftIdeas() {
+    void shouldReturnNotFoundWhenGiftIdeaDoesNotExist() throws Exception {
         // GIVEN
-        String query = "birthday";
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.searchGiftIdeas(userId, query)).thenReturn(giftIdeas);
+        when(giftIdeaService.getGiftIdeaById(giftIdeaId, userId))
+                .thenThrow(new ResourceNotFoundException("Gift idea not found with id: " + giftIdeaId));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.searchGiftIdeas(query, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).searchGiftIdeas(userId, query);
+        verify(giftIdeaService).getGiftIdeaById(giftIdeaId, userId);
     }
 
     @Test
-    void shouldReturnEmptyListWhenSearchYieldsNoResults() {
+    void shouldSearchGiftIdeasAndReturnMatches() throws Exception {
         // GIVEN
-        String query = "nonexistent";
-        when(giftIdeaService.searchGiftIdeas(userId, query)).thenReturn(List.of());
+        when(giftIdeaService.searchGiftIdeas(userId, "Test")).thenReturn(List.of(testGiftIdea));
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.searchGiftIdeas(query, userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/search")
+                        .param("query", "Test")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].title").value("Test Gift Idea"));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
+        verify(giftIdeaService).searchGiftIdeas(userId, "Test");
     }
 
     @Test
-    void shouldGetRecentGiftIdeas() {
+    void shouldReturnEmptyListWhenSearchYieldsNoResults() throws Exception {
         // GIVEN
-        List<GiftIdea> giftIdeas = List.of(testGiftIdea);
-        when(giftIdeaService.getRecentGiftIdeas(userId)).thenReturn(giftIdeas);
+        when(giftIdeaService.searchGiftIdeas(userId, "NonExistent")).thenReturn(Collections.emptyList());
 
-        // WHEN
-        ResponseEntity<List<GiftIdea>> response = giftIdeaController.getRecentGiftIdeas(userId);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/search")
+                        .param("query", "NonExistent")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
 
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(giftIdeaService, times(1)).getRecentGiftIdeas(userId);
+        verify(giftIdeaService).searchGiftIdeas(userId, "NonExistent");
     }
 
     @Test
-    void shouldUpdateGiftIdeaSuccessfully() {
+    void shouldReturnRecentGiftIdeas() throws Exception {
         // GIVEN
-        GiftIdea updatedGiftIdea = new GiftIdea();
-        updatedGiftIdea.setPersonId(personId);
-        updatedGiftIdea.setOccasionId(occasionId);
-        updatedGiftIdea.setTitle("Updated Title");
+        when(giftIdeaService.getRecentGiftIdeas(userId)).thenReturn(List.of(testGiftIdea));
 
-        when(giftIdeaService.updateGiftIdea(giftIdeaId, userId, updatedGiftIdea)).thenReturn(testGiftIdea);
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/recent")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        // WHEN
-        ResponseEntity<GiftIdea> response = giftIdeaController.updateGiftIdea(giftIdeaId, updatedGiftIdea, userId);
-
-        // THEN
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(giftIdeaService, times(1)).updateGiftIdea(giftIdeaId, userId, updatedGiftIdea);
+        verify(giftIdeaService).getRecentGiftIdeas(userId);
     }
 
     @Test
-    void shouldDeleteGiftIdeaAndReturnNoContentStatus() {
+    void shouldReturnEmptyListWhenNoRecentGiftIdeas() throws Exception {
+        // GIVEN
+        when(giftIdeaService.getRecentGiftIdeas(userId)).thenReturn(Collections.emptyList());
+
+        // WHEN & THEN
+        mockMvc.perform(get("/gift-ideas/recent")
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(giftIdeaService).getRecentGiftIdeas(userId);
+    }
+
+    @Test
+    void shouldUpdateGiftIdeaSuccessfully() throws Exception {
+        // GIVEN
+        GiftIdea updatedGiftIdea = createTestGiftIdea("Updated Idea", GiftSource.MANUAL);
+
+        when(giftIdeaService.updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class)))
+                .thenReturn(updatedGiftIdea);
+
+        // WHEN & THEN
+        mockMvc.perform(put("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated Idea"));
+
+        verify(giftIdeaService).updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUpdatingNonExistentGiftIdea() throws Exception {
+        // GIVEN
+        GiftIdea updatedGiftIdea = createTestGiftIdea("Updated Idea", GiftSource.MANUAL);
+
+        when(giftIdeaService.updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class)))
+                .thenThrow(new ResourceNotFoundException("Gift idea not found with id: " + giftIdeaId));
+
+        // WHEN & THEN
+        mockMvc.perform(put("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(giftIdeaService).updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenPersonChangedOnUpdate() throws Exception {
+        // GIVEN
+        GiftIdea updatedGiftIdea = createTestGiftIdea("Updated Idea", GiftSource.MANUAL);
+
+        when(giftIdeaService.updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class)))
+                .thenThrow(new IllegalArgumentException("Person cannot be changed for existing gift idea"));
+
+        // WHEN & THEN
+        mockMvc.perform(put("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedGiftIdea)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+
+        verify(giftIdeaService).updateGiftIdea(eq(giftIdeaId), eq(userId), any(GiftIdea.class));
+    }
+
+    @Test
+    void shouldDeleteGiftIdeaAndReturnNoContent() throws Exception {
         // GIVEN
         doNothing().when(giftIdeaService).deleteGiftIdea(giftIdeaId, userId);
 
-        // WHEN
-        ResponseEntity<Void> response = giftIdeaController.deleteGiftIdea(giftIdeaId, userId);
+        // WHEN & THEN
+        mockMvc.perform(delete("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNoContent());
 
-        // THEN
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(giftIdeaService, times(1)).deleteGiftIdea(giftIdeaId, userId);
+        verify(giftIdeaService).deleteGiftIdea(giftIdeaId, userId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeletingNonExistentGiftIdea() throws Exception {
+        // GIVEN
+        doThrow(new ResourceNotFoundException("Gift idea not found with id: " + giftIdeaId))
+                .when(giftIdeaService).deleteGiftIdea(giftIdeaId, userId);
+
+        // WHEN & THEN
+        mockMvc.perform(delete("/gift-ideas/{id}", giftIdeaId)
+                        .with(jwt().jwt(builder -> builder.subject(userId.toString())))
+                        .contentType(APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isNotFound());
+
+        verify(giftIdeaService).deleteGiftIdea(giftIdeaId, userId);
     }
 }
-
