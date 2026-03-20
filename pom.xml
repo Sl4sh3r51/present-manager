@@ -208,6 +208,9 @@
                         ${checkstyle.excludeFilterFile}
                     </suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                    <propertyExpansion>
+                        org.checkstyle.google.suppressionfilter.config=${checkstyle.excludeFilterFile}
+                    </propertyExpansion>
                 </configuration>
             </plugin>
         </plugins>
