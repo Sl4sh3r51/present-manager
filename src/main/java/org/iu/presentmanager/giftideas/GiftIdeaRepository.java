@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

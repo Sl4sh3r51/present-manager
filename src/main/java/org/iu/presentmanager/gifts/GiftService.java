@@ -4,8 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
-import org.iu.presentmanager.giftIdeas.GiftIdea;
-import org.iu.presentmanager.giftIdeas.GiftIdeaRepository;
+import org.iu.presentmanager.giftideas.GiftIdea;
+import org.iu.presentmanager.giftideas.GiftIdeaRepository;
 import org.iu.presentmanager.occasions.OccasionRepository;
 import org.iu.presentmanager.persons.PersonRepository;
 import org.springframework.stereotype.Service;
@@ -149,8 +149,7 @@ public class GiftService {
         }
 
         // Validierung: Wenn GiftIdea geändert wird
-        if (updatedGift.getGiftIdeaId() != null &&
-                !updatedGift.getGiftIdeaId().equals(existing.getGiftIdeaId())) {
+        if (updatedGift.getGiftIdeaId() != null && !updatedGift.getGiftIdeaId().equals(existing.getGiftIdeaId())) {
             giftIdeaRepository.findByIdAndUserId(updatedGift.getGiftIdeaId(), userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Gift idea not found with id: " + updatedGift.getGiftIdeaId()));
         }

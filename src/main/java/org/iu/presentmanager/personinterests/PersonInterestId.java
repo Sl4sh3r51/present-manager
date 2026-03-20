@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -24,8 +24,12 @@ public class PersonInterestId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof PersonInterestId that)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PersonInterestId that)) {
+            return false;
+        }
         return Objects.equals(personId, that.personId) && Objects.equals(interestId, that.interestId);
     }
 

@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -53,8 +53,12 @@ public class PersonInterest {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof PersonInterest that)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PersonInterest that)) {
+            return false;
+        }
         return Objects.equals(id, that.id);
     }
 

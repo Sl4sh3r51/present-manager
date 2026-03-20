@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import org.iu.presentmanager.exceptions.DuplicateResourceException;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;

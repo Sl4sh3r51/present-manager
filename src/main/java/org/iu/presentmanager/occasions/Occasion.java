@@ -13,7 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
-import org.iu.presentmanager.giftIdeas.GiftIdea;
+import org.iu.presentmanager.giftideas.GiftIdea;
 import org.iu.presentmanager.gifts.Gift;
 
 import java.time.Instant;

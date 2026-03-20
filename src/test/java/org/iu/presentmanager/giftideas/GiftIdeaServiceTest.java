@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
 import org.iu.presentmanager.occasions.OccasionRepository;

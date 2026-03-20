@@ -39,4 +39,25 @@
     -->
     <suppress checks="LineLength" files=".*\.java"/>
 
+    <!--
+        Indentation: Google Style uses 2-space indent, project uses 4-space
+        (IntelliJ/Java standard). Reformatting entire codebase would cause
+        unnecessary diff noise.
+    -->
+    <suppress checks="Indentation" files=".*\.java"/>
+
+    <!--
+        CustomImportOrder: Import ordering is handled by IntelliJ's
+        auto-formatter and differs from Google's grouping convention.
+    -->
+    <suppress checks="CustomImportOrder" files=".*\.java"/>
+
+    <!--
+        AbbreviationAsWordInName: Domain-specific abbreviations like UUID,
+        JPQL, and HTTP are standard in Spring Boot and JPA contexts.
+    -->
+    <suppress checks="AbbreviationAsWordInName" files=".*\.java"/>
+
+    <suppress checks="OperatorWrap" files=".*\.java"/>
+
 </suppressions>

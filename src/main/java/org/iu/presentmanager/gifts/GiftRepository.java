@@ -31,8 +31,8 @@ public interface GiftRepository extends JpaRepository<Gift, UUID> {
     boolean existsByUserIdAndGiftIdeaId(UUID userId, UUID giftIdeaId);
 
     @Query("SELECT g FROM Gift g WHERE g.userId = :userId AND " +
-            "(LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-            "LOWER(g.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+            "(LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+            + "LOWER(g.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     List<Gift> searchByTitleOrDescription(@Param("userId") UUID userId, @Param("searchTerm") String searchTerm);
 
     @Query("SELECT g FROM Gift g WHERE g.userId = :userId AND g.purchaseDate IS NULL")
@@ -46,11 +46,11 @@ public interface GiftRepository extends JpaRepository<Gift, UUID> {
 
     // Gifts sortiert nach Status-Workflow (PLANNED → PURCHASED → GIVEN)
     @Query("SELECT g FROM Gift g WHERE g.userId = :userId ORDER BY " +
-            "CASE g.status " +
-            "WHEN 'PLANNED' THEN 1 " +
-            "WHEN 'BOUGHT' THEN 2 " +
-            "WHEN 'GIFTED' THEN 3 " +
-            "END")
+            "CASE g.status "
+            + "WHEN 'PLANNED' THEN 1 "
+            + "WHEN 'BOUGHT' THEN 2 "
+            + "WHEN 'GIFTED' THEN 3 "
+            + "END")
     List<Gift> findByUserIdOrderByStatusWorkflow(@Param("userId") UUID userId);
 
     void deleteByUserIdAndId(UUID userId, UUID giftId);

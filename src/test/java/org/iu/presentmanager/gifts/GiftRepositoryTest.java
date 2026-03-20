@@ -1,7 +1,7 @@
 package org.iu.presentmanager.gifts;
 
-import org.iu.presentmanager.giftIdeas.GiftIdea;
-import org.iu.presentmanager.giftIdeas.GiftSource;
+import org.iu.presentmanager.giftideas.GiftIdea;
+import org.iu.presentmanager.giftideas.GiftSource;
 import org.iu.presentmanager.occasions.Occasion;
 import org.iu.presentmanager.occasions.OccasionType;
 import org.iu.presentmanager.persons.Person;

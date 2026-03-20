@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

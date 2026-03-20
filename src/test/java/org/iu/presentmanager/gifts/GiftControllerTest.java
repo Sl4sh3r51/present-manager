@@ -2,7 +2,7 @@ package org.iu.presentmanager.gifts;
 
 import org.iu.presentmanager.config.WebConfig;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
-import org.iu.presentmanager.giftIdeas.GiftIdea;
+import org.iu.presentmanager.giftideas.GiftIdea;
 import org.iu.presentmanager.security.SecurityConfig;
 import org.iu.presentmanager.security.SupabaseJwtConverter;
 import org.junit.jupiter.api.BeforeEach;

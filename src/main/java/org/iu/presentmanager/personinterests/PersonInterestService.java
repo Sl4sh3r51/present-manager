@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class PersonInterestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId));
 
 
-        Interest interest = interestRepository.findById(interestId)
+        final Interest interest = interestRepository.findById(interestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found with id: " + interestId));
 
 

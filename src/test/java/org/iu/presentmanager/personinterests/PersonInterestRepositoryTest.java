@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import org.iu.presentmanager.interests.Interest;
 import org.iu.presentmanager.persons.Person;

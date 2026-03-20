@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.iu.presentmanager.person_interests.PersonInterest;
+import org.iu.presentmanager.personinterests.PersonInterest;
 
 import java.time.Instant;
 import java.util.HashSet;

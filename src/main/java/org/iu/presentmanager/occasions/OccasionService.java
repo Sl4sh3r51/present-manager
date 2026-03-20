@@ -80,8 +80,7 @@ public class OccasionService {
         Occasion existing = getOccasionById(id, userId);
 
         // Validierung: Name bereits von anderem Occasion verwendet?
-        if (!existing.getName().equals(updatedOccasion.getName()) &&
-                occasionRepository.existsByUserIdAndName(userId, updatedOccasion.getName())) {
+        if (!existing.getName().equals(updatedOccasion.getName()) && occasionRepository.existsByUserIdAndName(userId, updatedOccasion.getName())) {
             throw new DuplicateResourceException("Occasion already exists with name: " + updatedOccasion.getName());
         }
 

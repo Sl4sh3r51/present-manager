@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import org.iu.presentmanager.config.WebConfig;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;

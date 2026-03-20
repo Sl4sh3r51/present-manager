@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

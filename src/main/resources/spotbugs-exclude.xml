@@ -17,10 +17,10 @@
             <Class name="org.iu.presentmanager.persons.Person"/>
             <Class name="org.iu.presentmanager.occasions.Occasion"/>
             <Class name="org.iu.presentmanager.interests.Interest"/>
-            <Class name="org.iu.presentmanager.giftIdeas.GiftIdea"/>
+            <Class name="org.iu.presentmanager.giftideas.GiftIdea"/>
             <Class name="org.iu.presentmanager.gifts.Gift"/>
             <Class name="org.iu.presentmanager.tasks.Task"/>
-            <Class name="org.iu.presentmanager.person_interests.PersonInterest"/>
+            <Class name="org.iu.presentmanager.personinterests.PersonInterest"/>
         </Or>
     </Match>
 

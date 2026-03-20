@@ -1,4 +1,4 @@
-package org.iu.presentmanager.person_interests;
+package org.iu.presentmanager.personinterests;
 
 import org.iu.presentmanager.config.WebConfig;
 import org.iu.presentmanager.exceptions.DuplicateResourceException;

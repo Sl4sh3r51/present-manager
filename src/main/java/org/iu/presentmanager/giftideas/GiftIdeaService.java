@@ -1,4 +1,4 @@
-package org.iu.presentmanager.giftIdeas;
+package org.iu.presentmanager.giftideas;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -97,8 +97,7 @@ public class GiftIdeaService {
         }
 
         // Validierung: Wenn Occasion geändert wird
-        if (updatedGiftIdea.getOccasionId() != null &&
-                !updatedGiftIdea.getOccasionId().equals(existing.getOccasionId())) {
+        if (updatedGiftIdea.getOccasionId() != null && !updatedGiftIdea.getOccasionId().equals(existing.getOccasionId())) {
             occasionRepository.findByIdAndUserId(updatedGiftIdea.getOccasionId(), userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Occasion not found with id: " + updatedGiftIdea.getOccasionId()));
         }

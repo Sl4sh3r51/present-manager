@@ -1,9 +1,9 @@
 package org.iu.presentmanager.gifts;
 
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
-import org.iu.presentmanager.giftIdeas.GiftIdea;
-import org.iu.presentmanager.giftIdeas.GiftIdeaRepository;
-import org.iu.presentmanager.giftIdeas.GiftSource;
+import org.iu.presentmanager.giftideas.GiftIdea;
+import org.iu.presentmanager.giftideas.GiftIdeaRepository;
+import org.iu.presentmanager.giftideas.GiftSource;
 import org.iu.presentmanager.occasions.OccasionRepository;
 import org.iu.presentmanager.persons.PersonRepository;
 import org.junit.jupiter.api.BeforeEach;
