@@ -207,6 +207,7 @@
                     <suppressionsLocation>
                         ${checkstyle.excludeFilterFile}
                     </suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
             </plugin>
         </plugins>
