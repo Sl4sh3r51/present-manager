@@ -32,6 +32,8 @@
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <spotbugs-maven-plugin.version>4.8.3.1</spotbugs-maven-plugin.version>
         <spotbugs-annotations.version>4.8.3</spotbugs-annotations.version>
+        <spotbugs.excludeFilterFile>${project.basedir}/src/main/resources/spotbugs-exclude.xml</spotbugs.excludeFilterFile>
+        <checkstyle.excludeFilterFile>${project.basedir}/src/main/resources/checkstyle-suppressions.xml</checkstyle.excludeFilterFile>
     </properties>
     <dependencies>
         <dependency>
@@ -180,7 +182,7 @@
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
-                    <excludeFilterFile>src/main/resources/spotbugs-exclude-xml</excludeFilterFile>
+                    <excludeFilterFile>${spotbugs.excludeFilterFile}</excludeFilterFile>
                 </configuration>
             </plugin>
             <!-- PMD -->
@@ -203,7 +205,7 @@
                 <configuration>
                     <configLocation>google_checks.xml</configLocation>
                     <suppressionsLocation>
-                        src/main/resources/checkstyle-suppressions.xml
+                        ${checkstyle.excludeFilterFile}
                     </suppressionsLocation>
                 </configuration>
             </plugin>
