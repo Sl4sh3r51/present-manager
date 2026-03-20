@@ -51,7 +51,7 @@ public class PersonController {
     public ResponseEntity<Person> updatePerson(
             @PathVariable UUID id,
             @Valid @RequestBody Person person,
-            @AuthenticationPrincipal UUID userId){
+            @AuthenticationPrincipal UUID userId) {
         Person updated = personService.updatePerson(id, person, userId);
         return ResponseEntity.ok(updated);
     }

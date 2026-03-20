@@ -24,8 +24,8 @@ public class PersonInterestId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PersonInterestId that)) return false;
+        if (this == o) { return true; }
+        if (!(o instanceof PersonInterestId that)) { return false; }
         return Objects.equals(personId, that.personId) && Objects.equals(interestId, that.interestId);
     }
 

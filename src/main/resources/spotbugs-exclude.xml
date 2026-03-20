@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+
+    <!-- Spring-managed beans: Constructor injection via Lombok is safe -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="~.*Controller"/>
+            <Class name="~.*Service"/>
+        </Or>
+    </Match>
+
+    <!-- JPA entities: Hibernate requires direct collection access -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="org.iu.presentmanager.persons.Person"/>
+            <Class name="org.iu.presentmanager.occasions.Occasion"/>
+            <Class name="org.iu.presentmanager.interests.Interest"/>
+            <Class name="org.iu.presentmanager.giftIdeas.GiftIdea"/>
+            <Class name="org.iu.presentmanager.gifts.Gift"/>
+            <Class name="org.iu.presentmanager.tasks.Task"/>
+            <Class name="org.iu.presentmanager.person_interests.PersonInterest"/>
+        </Or>
+    </Match>
+
+</FindBugsFilter>

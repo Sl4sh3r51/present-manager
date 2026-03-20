@@ -10,10 +10,10 @@ public enum PersonStatus {
     PLANNED("planned"),
     COMPLETED("completed");
 
-    private final String value;
+    private final String status;
 
     PersonStatus(String value) {
-        this.value = value;
+        this.status = value;
     }
 
 }

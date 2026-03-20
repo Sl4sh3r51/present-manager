@@ -18,6 +18,8 @@ public class OccasionService {
 
     private final OccasionRepository occasionRepository;
 
+    private static final int MAX_MONTH = 12;
+
     @Transactional
     public Occasion createOccasion(Occasion occasion, UUID userId) {
         log.info("Creating occasion: {} for user: {}", occasion.getName(), userId);
@@ -28,10 +30,8 @@ public class OccasionService {
         }
 
         // Validierung: FIXED muss fixedMonth und fixedDay haben
-        if (occasion.getType() == OccasionType.FIXED) {
-            if (occasion.getFixedMonth() == null || occasion.getFixedDay() == null) {
-                throw new IllegalArgumentException("Fixed occasions must have fixedMonth and fixedDay");
-            }
+        if (occasion.getType() == OccasionType.FIXED && (occasion.getFixedMonth() == null || occasion.getFixedDay() == null)) {
+            throw new IllegalArgumentException("Fixed occasions must have fixedMonth and fixedDay");
         }
 
         occasion.setUserId(userId);
@@ -60,7 +60,7 @@ public class OccasionService {
     }
 
     public List<Occasion> getFixedOccasionsByMonth(UUID userId, int month) {
-        if (month < 1 || month > 12) {
+        if (month < 1 || month > MAX_MONTH) {
             throw new IllegalArgumentException("Month must be between 1 and 12");
         }
         return occasionRepository.findFixedOccasionByMonth(userId, month);

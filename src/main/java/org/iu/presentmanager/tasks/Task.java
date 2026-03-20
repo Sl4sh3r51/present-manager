@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.iu.presentmanager.gifts.Gift;
 import org.iu.presentmanager.persons.Person;
 
 import java.time.Instant;

@@ -10,8 +10,8 @@ public enum OccasionType {
 
     private final String type;
 
-    OccasionType(String type) {
-        this.type = type;
+    OccasionType(String value) {
+        this.type = value;
     }
 
 }

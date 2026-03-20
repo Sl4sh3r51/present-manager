@@ -33,10 +33,10 @@ public class PersonService {
 
     @Transactional
     public Person createPerson(Person person, UUID userId) {
-        if(person.getName() == null || person.getName().isBlank()) {
+        if (person.getName() == null || person.getName().isBlank()) {
             throw new IllegalArgumentException("Person name cannot be empty");
         }
-        if(person.getStatus() == null) {
+        if (person.getStatus() == null) {
             throw new IllegalArgumentException("Person status cannot be null");
         }
         person.setUserId(userId);
@@ -45,7 +45,7 @@ public class PersonService {
     }
 
     public Person updatePerson(UUID id, Person person, UUID userId) {
-        Person existingPerson =  personRepository.findByIdAndUserId(id, userId)
+        Person existingPerson = personRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found"));
 
         existingPerson.setName(person.getName());

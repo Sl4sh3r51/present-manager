@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions>
+
+    <!--
+        DesignForExtension: Spring Boot requires non-final classes for CGLIB proxying.
+        Making classes or methods final would break @Transactional, AOP, and Spring DI.
+    -->
+    <suppress checks="DesignForExtension" files=".*\.java"/>
+
+    <!--
+        Javadoc rules: Self-explanatory method and field names in a REST API
+        do not benefit from Javadoc comments. Standard Spring Boot convention.
+    -->
+    <suppress checks="JavadocVariable" files=".*\.java"/>
+    <suppress checks="MissingJavadocMethod" files=".*\.java"/>
+    <suppress checks="JavadocPackage" files=".*\.java"/>
+    <suppress checks="MissingJavadocType" files=".*\.java"/>
+
+    <!--
+        FinalParameters: Deprecated Java style, incompatible with Lombok-generated
+        constructors and modern Java conventions (Google Style Guide).
+    -->
+    <suppress checks="FinalParameters" files=".*\.java"/>
+
+    <!--
+        AvoidStarImport: jakarta.persistence.* is standard JPA convention with
+        15+ annotations per entity class. Individual imports reduce readability.
+    -->
+    <suppress checks="AvoidStarImport" files=".*\.java"/>
+
+    <!--
+        LineLength: Some Spring annotations and method signatures inherently
+        exceed 80 characters. The 80-char limit predates modern IDEs and monitors.
+        Industry standard is 120 characters.
+    -->
+    <suppress checks="LineLength" files=".*\.java"/>
+
+</suppressions>

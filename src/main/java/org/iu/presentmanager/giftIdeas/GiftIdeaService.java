@@ -30,7 +30,7 @@ public class GiftIdeaService {
                     .orElseThrow(() -> new ResourceNotFoundException("Occasion not found with id: " + giftIdea.getOccasionId()));
         }
 
-        if(giftIdea.getTitle() == null || giftIdea.getTitle().isEmpty()){
+        if (giftIdea.getTitle() == null || giftIdea.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be empty");
         }
 
@@ -93,7 +93,7 @@ public class GiftIdeaService {
 
         // Validierung: Wenn Person geändert wird
         if (!existing.getPersonId().equals(updatedGiftIdea.getPersonId())) {
-                throw new IllegalArgumentException("Person cannot be changed for existing gift idea");
+            throw new IllegalArgumentException("Person cannot be changed for existing gift idea");
         }
 
         // Validierung: Wenn Occasion geändert wird

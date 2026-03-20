@@ -12,7 +12,7 @@ public enum GiftStatus {
     private final String status;
 
 
-    GiftStatus(String status) {
-        this.status = status;
+    GiftStatus(String value) {
+        this.status = value;
     }
 }

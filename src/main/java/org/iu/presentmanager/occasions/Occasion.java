@@ -36,6 +36,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Occasion {
 
+    private static final int MAX_MONTH = 12;
+    private static final int MAX_DAY = 31;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -49,19 +52,19 @@ public class Occasion {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @NotNull(message="Type is mandatory")
+    @NotNull(message = "Type is mandatory")
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type", nullable = false)
     private OccasionType type;
 
     @Min(value = 1, message = "Month must be between 1 and 12")
-    @Max(value = 12, message = "Month must be between 1 and 12")
+    @Max(value = MAX_MONTH, message = "Month must be between 1 and 12")
     @Column(name = "fixed_month")
     private Integer fixedMonth;
 
     @Min(value = 1, message = "Day must be between 1 and 31")
-    @Max(value = 31, message = "Day must be between 1 and 31")
+    @Max(value = MAX_DAY, message = "Day must be between 1 and 31")
     @Column(name = "fixed_day")
     private Integer fixedDay;
 
@@ -85,14 +88,4 @@ public class Occasion {
     @JsonIgnore
     private Set<Gift> gifts = new HashSet<>();
 
-    // Validierung: fixed_month und fixed_day nur bei type=FIXED
-    @PrePersist
-    @PreUpdate
-    private void validateOccasion() {
-        if (type == OccasionType.FIXED) {
-            if (fixedMonth == null || fixedDay == null) {
-                throw new IllegalStateException("Fixed occasions must have fixedMonth and fixedDay set");
-            }
-        }
-    }
 }

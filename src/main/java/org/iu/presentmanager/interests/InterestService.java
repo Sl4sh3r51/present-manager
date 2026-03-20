@@ -21,7 +21,7 @@ public class InterestService {
         return interestRepository.findAll();
     }
 
-    public Interest     getInterestById(UUID interestId) {
+    public Interest getInterestById(UUID interestId) {
         return interestRepository.findById(interestId).filter(interests -> interests.getId().equals(interestId))
                 .orElseThrow(() -> new ResourceNotFoundException("Interest not found"));
     }
@@ -54,7 +54,7 @@ public class InterestService {
     }
 
     public boolean existsByName(String name) {
-        if(name == null || name.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Interest name cannot be null or empty");
         }
         return interestRepository.existsByNameIgnoreCase(name);

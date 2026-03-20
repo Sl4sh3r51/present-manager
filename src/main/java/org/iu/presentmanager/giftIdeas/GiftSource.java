@@ -11,7 +11,7 @@ public enum GiftSource {
 
     private final String source;
 
-    GiftSource(String source) {
-        this.source = source;
+    GiftSource(String value) {
+        this.source = value;
     }
 }

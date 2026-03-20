@@ -180,6 +180,7 @@
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
+                    <excludeFilterFile>src/main/resources/spotbugs-exclude-xml</excludeFilterFile>
                 </configuration>
             </plugin>
             <!-- PMD -->
@@ -201,6 +202,9 @@
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>google_checks.xml</configLocation>
+                    <suppressionsLocation>
+                        src/main/resources/checkstyle-suppressions.xml
+                    </suppressionsLocation>
                 </configuration>
             </plugin>
         </plugins>
