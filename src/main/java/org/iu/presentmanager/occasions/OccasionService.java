@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.iu.presentmanager.exceptions.DuplicateResourceException;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
+import org.iu.presentmanager.gifts.GiftRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,8 @@ import java.util.UUID;
 public class OccasionService {
 
     private final OccasionRepository occasionRepository;
+
+    private final GiftRepository giftRepository;
 
     private static final int MAX_MONTH = 12;
 
@@ -98,6 +101,10 @@ public class OccasionService {
     public void deleteOccasion(UUID id, UUID userId) {
         if (occasionRepository.findByIdAndUserId(id, userId).isEmpty()) {
             throw new ResourceNotFoundException("Occasion not found with id: " + id);
+        }
+        boolean hasGift = giftRepository.existsByOccasionId(id);
+        if(hasGift) {
+            throw new IllegalStateException("Anlass kann nicht gelöscht werden, da noch Geschenke verknüpft sind");
         }
         occasionRepository.deleteByIdAndUserId(id, userId);
         log.info("Deleted occasion: {} for user: {}", id, userId);
