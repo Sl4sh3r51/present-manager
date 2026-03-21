@@ -30,6 +30,8 @@ public interface GiftRepository extends JpaRepository<Gift, UUID> {
 
     boolean existsByUserIdAndGiftIdeaId(UUID userId, UUID giftIdeaId);
 
+    boolean existsByOccasionId(UUID occasionId);
+
     @Query("SELECT g FROM Gift g WHERE g.userId = :userId AND " +
             "(LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
             + "LOWER(g.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")

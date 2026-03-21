@@ -2,6 +2,8 @@ package org.iu.presentmanager.occasions;
 
 import org.iu.presentmanager.exceptions.DuplicateResourceException;
 import org.iu.presentmanager.exceptions.ResourceNotFoundException;
+import org.iu.presentmanager.gifts.Gift;
+import org.iu.presentmanager.gifts.GiftRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -24,6 +23,9 @@ class OccasionServiceTest {
 
     @Mock
     private OccasionRepository occasionRepository;
+
+    @Mock
+    private GiftRepository giftRepository;
 
     @InjectMocks
     private OccasionService occasionService;
@@ -179,6 +181,7 @@ class OccasionServiceTest {
     @Test
     void shouldGetOccasionById() {
         // GIVEN
+        testOccasion.setGifts(Set.of(new Gift()));
         when(occasionRepository.findByIdAndUserId(occasionId, userId))
                 .thenReturn(Optional.of(testOccasion));
 
@@ -190,6 +193,19 @@ class OccasionServiceTest {
         assertEquals("Christmas", result.getName());
         assertEquals(userId, result.getUserId());
         verify(occasionRepository).findByIdAndUserId(occasionId, userId);
+    }
+
+    @Test
+    void shouldReturnIllegalStateExceptionWhenDeletingOccasionWithGifts(){
+        //Given
+        when(occasionRepository.findByIdAndUserId(occasionId, userId))
+                .thenReturn(Optional.of(testOccasion));
+        when(giftRepository.existsByOccasionId(occasionId)).thenReturn(true);
+
+        //When & Then
+        assertThrows(IllegalStateException.class, () -> occasionService.deleteOccasion(occasionId, userId));
+        verify(occasionRepository).findByIdAndUserId(occasionId, userId);
+        verify(giftRepository).existsByOccasionId(occasionId);
     }
 
     @Test
@@ -500,8 +516,10 @@ class OccasionServiceTest {
     @Test
     void shouldDeleteOccasion() {
         // GIVEN
+
         when(occasionRepository.findByIdAndUserId(occasionId, userId))
                 .thenReturn(Optional.of(testOccasion));
+        when(giftRepository.existsByOccasionId(occasionId)).thenReturn(false);
         doNothing().when(occasionRepository).deleteByIdAndUserId(occasionId, userId);
 
         // WHEN
@@ -509,6 +527,7 @@ class OccasionServiceTest {
 
         // THEN
         verify(occasionRepository).findByIdAndUserId(occasionId, userId);
+        verify(giftRepository).existsByOccasionId(occasionId);
         verify(occasionRepository).deleteByIdAndUserId(occasionId, userId);
     }
 
