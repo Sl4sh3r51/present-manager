@@ -2,7 +2,7 @@
 
 ![Build main](https://github.com/Sl4sh3r51/present-manager/actions/workflows/build.yml/badge.svg?branch=main)
 ![Java](https://img.shields.io/badge/Java-21-blue)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-green)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
 
 ---
