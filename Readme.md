@@ -28,17 +28,17 @@ Das Backend ist als **Spring Boot Anwendung** realisiert und kommuniziert mit ei
 
 ## Technologie-Stack
 
-| Komponente | Technologie |
-|---|---|
-| Sprache | Java 21 |
-| Framework | Spring Boot 3.x |
-| Sicherheit | Spring Security + OAuth2 Resource Server (JWT) |
-| Authentifizierung | Supabase Auth (ES256 JWT) |
-| Datenbank | PostgreSQL 16 (Supabase) |
-| ORM | Hibernate / Spring Data JPA |
-| Build-Tool | Maven |
+| Komponente | Technologie                                     |
+|---|-------------------------------------------------|
+| Sprache | Java 21                                         |
+| Framework | Spring Boot 4.x                                 |
+| Sicherheit | Spring Security + OAuth2 Resource Server (JWT)  |
+| Authentifizierung | Supabase Auth (ES256 JWT)                       |
+| Datenbank | PostgreSQL 16 (Supabase)                        |
+| ORM | Hibernate / Spring Data JPA                     |
+| Build-Tool | Maven                                           |
 | Tests | JUnit 5, Mockito, Spring Boot Test, DataJpaTest |
-| CI/CD | GitHub Actions |
+| CI/CD | GitHub Actions                                  |
 
 ---
 
